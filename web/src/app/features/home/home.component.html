@@ -1,0 +1,30 @@
+<section class="home" aria-labelledby="home-title">
+  <header class="home__header">
+    <h1 id="home-title" class="home__title">Panel de biblioteca</h1>
+    <p class="home__lede">
+      Cliente Angular preparado para consumir la API versionada (<code>{{ env.apiVersionPath }}</code>)
+      con respuestas envueltas en <code>ApiResponse&lt;T&gt;</code> y listados paginados.
+    </p>
+  </header>
+
+  <div class="home__grid">
+    <article class="card">
+      <h2 class="card__title">Integración API</h2>
+      <p class="card__body">
+        URL base efectiva para los servicios:
+        <strong>{{ apiRoot || '(origen actual)' }}</strong>.
+        En desarrollo, las peticiones a rutas que empiezan por <code>/api</code> se reenvían al backend mediante
+        <code>proxy.conf.json</code> para evitar problemas de CORS.
+      </p>
+    </article>
+
+    <article class="card">
+      <h2 class="card__title">Siguientes pasos</h2>
+      <ul class="card__list">
+        <li>Servicios HTTP por dominio (autores, libros con multipart, préstamos, reportes).</li>
+        <li>Rutas y vistas de lista/detalle con paginación coherente con el backend.</li>
+        <li>Manejo unificado de errores de validación y negocio desde <code>errors[]</code>.</li>
+      </ul>
+    </article>
+  </div>
+</section>

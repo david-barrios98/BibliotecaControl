@@ -1,0 +1,49 @@
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.shell__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.875rem 1.5rem;
+  background: var(--bc-color-surface);
+  border-bottom: 1px solid var(--bc-color-border);
+  box-shadow: var(--bc-shadow);
+}
+
+.shell__brand {
+  font-weight: 600;
+  font-size: 1.125rem;
+  letter-spacing: -0.02em;
+  color: var(--bc-color-text);
+  text-decoration: none;
+}
+
+.shell__brand:hover {
+  color: var(--bc-color-accent);
+}
+
+.shell__nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.shell__nav-placeholder {
+  font-size: 0.875rem;
+  color: var(--bc-color-muted);
+}
+
+.shell__main {
+  flex: 1;
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: 1.75rem 1.5rem 3rem;
+  box-sizing: border-box;
+}
