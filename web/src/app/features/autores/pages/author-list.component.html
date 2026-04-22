@@ -1,0 +1,84 @@
+<section class="al" aria-labelledby="al-title">
+  <header class="al__header">
+    <div>
+      <h1 id="al-title" class="al__title">Autores</h1>
+      <p class="al__intro">Catálogo con paginación contra <code>GET Author/List</code>.</p>
+    </div>
+    <a routerLink="/autores/nuevo" class="al__btn al__btn--primary">Nuevo autor</a>
+  </header>
+
+  @if (loading()) {
+    <app-loading-block label="Cargando autores…" />
+  } @else {
+    @if (errorMessage(); as err) {
+      <app-error-alert
+        [message]="err"
+        heading="No se pudo cargar el listado"
+        [showRetry]="true"
+        (retry)="loadPage()"
+      />
+    } @else if (isEmpty()) {
+      <app-empty-state
+        title="Sin autores"
+        hint="Aún no hay registros en el catálogo, o ninguno coincide con los filtros de esta página."
+        actionLabel="Crear primer autor"
+        [actionLink]="['/autores', 'nuevo']"
+      />
+    } @else {
+      <div class="al__table-wrap">
+        <table class="al__table">
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">País</th>
+              <th scope="col">Nacimiento</th>
+              <th scope="col" class="al__col-actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of authors(); track a.id) {
+              <tr>
+                <td>
+                  <a [routerLink]="['/autores', a.id]" class="al__link">{{ displayName(a) }}</a>
+                </td>
+                <td>{{ a.country || '—' }}</td>
+                <td>{{ formatDate(a.birthDate) }}</td>
+                <td class="al__col-actions">
+                  <a [routerLink]="['/autores', a.id, 'editar']" class="al__btn al__btn--ghost">Editar</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="al__pager" aria-label="Paginación">
+        <div class="al__pager-size">
+          <label for="page-size">Por página</label>
+          <select id="page-size" class="al__select" (change)="onPageSizeChange($event)" [value]="pageSize()">
+            @for (s of pageSizeOptions; track s) {
+              <option [value]="s">{{ s }}</option>
+            }
+          </select>
+        </div>
+        <div class="al__pager-nav">
+          <button type="button" class="al__btn al__btn--ghost" (click)="prevPage()" [disabled]="pageNumber() <= 1">
+            Anterior
+          </button>
+          <span class="al__pager-info">
+            Página {{ pageNumber() }} @if (totalPages() > 0) { de {{ totalPages() }} }
+            · {{ totalRecords() }} registro(s)
+          </span>
+          <button
+            type="button"
+            class="al__btn al__btn--ghost"
+            (click)="nextPage()"
+            [disabled]="totalPages() === 0 || pageNumber() >= totalPages()"
+          >
+            Siguiente
+          </button>
+        </div>
+      </footer>
+    }
+  }
+</section>

@@ -1,0 +1,60 @@
+:host {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.bc-alert {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+}
+
+.bc-alert--error {
+  background: #fdecea;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+.bc-alert__body {
+  flex: 1;
+  min-width: 12rem;
+}
+
+.bc-alert__heading {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.bc-alert__text {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.bc-alert__retry {
+  flex-shrink: 0;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  color: #721c24;
+  background: #fff;
+  border: 1px solid #e2a4a9;
+  border-radius: 8px;
+}
+
+.bc-alert__retry:hover {
+  background: #fff5f5;
+}
+
+.bc-alert__retry:focus-visible {
+  outline: 2px solid var(--bc-color-accent);
+  outline-offset: 2px;
+}

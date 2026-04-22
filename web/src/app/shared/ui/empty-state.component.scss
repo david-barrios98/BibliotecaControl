@@ -1,0 +1,71 @@
+:host {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.es {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2.25rem 1.5rem;
+  border: 1px dashed var(--bc-color-border);
+  border-radius: var(--bc-radius);
+  background: var(--bc-color-surface);
+  box-shadow: var(--bc-shadow);
+}
+
+.es__visual {
+  color: color-mix(in srgb, var(--bc-color-accent) 35%, var(--bc-color-muted));
+  margin-bottom: 1rem;
+}
+
+.es__svg {
+  width: 3rem;
+  height: 3rem;
+  display: block;
+}
+
+.es__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--bc-color-text);
+}
+
+.es__hint {
+  margin: 0 0 1.25rem;
+  max-width: 26rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--bc-color-muted);
+}
+
+.es__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.es__btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 8px;
+  background: var(--bc-color-accent);
+  color: #fff;
+}
+
+.es__btn:hover {
+  background: var(--bc-color-accent-hover);
+}
+
+.es__btn:focus-visible {
+  outline: 2px solid var(--bc-color-accent);
+  outline-offset: 2px;
+}

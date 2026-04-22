@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { AUTORES_HUB, LIBROS_HUB, PRESTAMOS_HUB, REPORTES_HUB } from './features/module-hub/module-hubs.data';
+import { LIBROS_HUB, PRESTAMOS_HUB, REPORTES_HUB } from './features/module-hub/module-hubs.data';
 
 export const routes: Routes = [
   {
@@ -13,8 +13,7 @@ export const routes: Routes = [
       },
       {
         path: 'autores',
-        loadComponent: () => import('./features/module-hub/module-hub.component').then((m) => m.ModuleHubComponent),
-        data: { hub: AUTORES_HUB },
+        loadChildren: () => import('./features/autores/autores.routes').then((m) => m.AUTORES_ROUTES),
       },
       {
         path: 'libros',

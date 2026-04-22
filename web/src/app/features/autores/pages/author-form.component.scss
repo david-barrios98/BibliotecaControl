@@ -1,0 +1,132 @@
+.af__crumb {
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  color: var(--bc-color-muted);
+}
+
+.af__crumb-link {
+  color: var(--bc-color-accent);
+  text-decoration: none;
+}
+
+.af__crumb-link:hover {
+  text-decoration: underline;
+}
+
+.af__crumb-sep {
+  margin-inline: 0.35rem;
+  opacity: 0.7;
+}
+
+.af__crumb-current {
+  font-weight: 500;
+  color: var(--bc-color-text);
+}
+
+.af__title {
+  margin: 0 0 1.25rem;
+  font-size: 1.45rem;
+  letter-spacing: -0.03em;
+}
+
+.af__form {
+  max-width: 40rem;
+}
+
+.af__grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .af__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .af__field--full {
+    grid-column: 1 / -1;
+  }
+}
+
+.af__field label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  color: var(--bc-color-text);
+}
+
+.af__optional {
+  font-weight: 400;
+  color: var(--bc-color-muted);
+}
+
+.af__field input,
+.af__field textarea {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--bc-color-border);
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.af__field textarea {
+  resize: vertical;
+  min-height: 6rem;
+}
+
+.af__hint {
+  display: block;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.af__hint--error {
+  color: #b02a37;
+}
+
+.af__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.af__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.af__btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.af__btn--primary {
+  background: var(--bc-color-accent);
+  color: #fff;
+}
+
+.af__btn--primary:hover:not(:disabled) {
+  background: var(--bc-color-accent-hover);
+}
+
+.af__btn--ghost {
+  background: transparent;
+  border-color: var(--bc-color-border);
+  color: var(--bc-color-text);
+}
+
+.af__btn--ghost:hover {
+  background: color-mix(in srgb, var(--bc-color-bg) 80%, transparent);
+}

@@ -1,0 +1,73 @@
+<section class="af" aria-labelledby="af-title">
+  <nav class="af__crumb" aria-label="Migas de pan">
+    <a routerLink="/autores" class="af__crumb-link">Autores</a>
+    <span class="af__crumb-sep" aria-hidden="true">/</span>
+    <span class="af__crumb-current">{{ isEdit() ? 'Editar' : 'Nuevo' }}</span>
+  </nav>
+
+  <h1 id="af-title" class="af__title">{{ isEdit() ? 'Editar autor' : 'Nuevo autor' }}</h1>
+
+  @if (loadError(); as le) {
+    <app-error-alert
+      [message]="le"
+      heading="No se pudieron cargar los datos"
+      [showRetry]="isEdit()"
+      (retry)="retryInitialLoad()"
+    />
+  }
+
+  @if (submitError(); as se) {
+    <app-error-alert [message]="se" heading="No se pudo guardar" [showRetry]="false" />
+  }
+
+  @if (isEdit() && loading()) {
+    <app-loading-block label="Cargando datos del autor…" />
+  } @else if (isEdit() === false || loadError() === null) {
+    <form class="af__form" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="af__grid">
+        <div class="af__field">
+          <label for="af-name">Nombre</label>
+          <input id="af-name" type="text" formControlName="name" autocomplete="given-name" maxlength="100" />
+          @if (fieldError('name'); as fe) {
+            <span class="af__hint af__hint--error">{{ fe }}</span>
+          }
+        </div>
+        <div class="af__field">
+          <label for="af-last">Apellidos</label>
+          <input id="af-last" type="text" formControlName="lastName" autocomplete="family-name" maxlength="100" />
+          @if (fieldError('lastName'); as fe) {
+            <span class="af__hint af__hint--error">{{ fe }}</span>
+          }
+        </div>
+        <div class="af__field">
+          <label for="af-birth">Fecha de nacimiento</label>
+          <input id="af-birth" type="datetime-local" formControlName="birthDate" />
+          @if (fieldError('birthDate'); as fe) {
+            <span class="af__hint af__hint--error">{{ fe }}</span>
+          }
+        </div>
+        <div class="af__field">
+          <label for="af-country">País</label>
+          <input id="af-country" type="text" formControlName="country" autocomplete="country-name" maxlength="50" />
+          @if (fieldError('country'); as fe) {
+            <span class="af__hint af__hint--error">{{ fe }}</span>
+          }
+        </div>
+        <div class="af__field af__field--full">
+          <label for="af-bio">Biografía <span class="af__optional">(opcional)</span></label>
+          <textarea id="af-bio" formControlName="biography" rows="4" maxlength="500"></textarea>
+          @if (fieldError('biography'); as fe) {
+            <span class="af__hint af__hint--error">{{ fe }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="af__actions">
+        <a routerLink="/autores" class="af__btn af__btn--ghost">Cancelar</a>
+        <button type="submit" class="af__btn af__btn--primary" [disabled]="saving()">
+          {{ saving() ? 'Guardando…' : 'Guardar' }}
+        </button>
+      </div>
+    </form>
+  }
+</section>

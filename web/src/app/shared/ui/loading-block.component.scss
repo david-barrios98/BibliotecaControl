@@ -1,0 +1,43 @@
+:host {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.lb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 12rem;
+  padding: 2rem 1rem;
+  border: 1px dashed var(--bc-color-border);
+  border-radius: var(--bc-radius);
+  background: color-mix(in srgb, var(--bc-color-surface) 92%, var(--bc-color-bg));
+  color: var(--bc-color-muted);
+  font-size: 0.925rem;
+}
+
+.lb--compact {
+  min-height: 4rem;
+  padding: 1rem;
+}
+
+.lb__spinner {
+  width: 1.35rem;
+  height: 1.35rem;
+  border: 2px solid var(--bc-color-border);
+  border-top-color: var(--bc-color-accent);
+  border-radius: 50%;
+  animation: lb-spin 0.7s linear infinite;
+}
+
+.lb__label {
+  font-weight: 500;
+  color: var(--bc-color-text);
+}
+
+@keyframes lb-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

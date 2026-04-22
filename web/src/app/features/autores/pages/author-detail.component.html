@@ -1,0 +1,61 @@
+<section class="ad" aria-labelledby="ad-title">
+  <nav class="ad__crumb" aria-label="Migas de pan">
+    <a routerLink="/autores" class="ad__crumb-link">Autores</a>
+    <span class="ad__crumb-sep" aria-hidden="true">/</span>
+    <span class="ad__crumb-current">Detalle</span>
+  </nav>
+
+  @if (deleteError(); as delErr) {
+    <app-error-alert [message]="delErr" heading="No se pudo eliminar" [showRetry]="false" />
+  }
+
+  @if (loading()) {
+    <app-loading-block label="Cargando autor…" />
+  } @else {
+    @if (loadError(); as loadErr) {
+      <app-error-alert
+        [message]="loadErr"
+        [heading]="invalidId() ? null : 'No se pudo cargar el autor'"
+        [showRetry]="!invalidId()"
+        (retry)="retryLoad()"
+      />
+    } @else {
+      @if (author(); as a) {
+        <header class="ad__header">
+          <h1 id="ad-title" class="ad__title">{{ displayName(a) }}</h1>
+          <div class="ad__actions">
+            <a [routerLink]="['/autores', a.id, 'editar']" class="ad__btn ad__btn--primary">Editar</a>
+            <button type="button" class="ad__btn ad__btn--danger" (click)="confirmDelete()">Eliminar</button>
+          </div>
+        </header>
+
+        <dl class="ad__dl">
+          <div class="ad__row">
+            <dt>Id</dt>
+            <dd>{{ a.id }}</dd>
+          </div>
+          <div class="ad__row">
+            <dt>Nombre</dt>
+            <dd>{{ a.name || '—' }}</dd>
+          </div>
+          <div class="ad__row">
+            <dt>Apellidos</dt>
+            <dd>{{ a.lastName || '—' }}</dd>
+          </div>
+          <div class="ad__row">
+            <dt>Fecha de nacimiento</dt>
+            <dd>{{ formatDate(a.birthDate) }}</dd>
+          </div>
+          <div class="ad__row">
+            <dt>País</dt>
+            <dd>{{ a.country || '—' }}</dd>
+          </div>
+          <div class="ad__row ad__row--block">
+            <dt>Biografía</dt>
+            <dd>{{ a.biography?.trim() ? a.biography : '—' }}</dd>
+          </div>
+        </dl>
+      }
+    }
+  }
+</section>
