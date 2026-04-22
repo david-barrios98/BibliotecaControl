@@ -1,0 +1,79 @@
+.hub__crumb {
+  font-size: 0.875rem;
+  margin-bottom: 1.25rem;
+  color: var(--bc-color-muted);
+}
+
+.hub__crumb-link {
+  color: var(--bc-color-accent);
+  text-decoration: none;
+}
+
+.hub__crumb-link:hover {
+  text-decoration: underline;
+}
+
+.hub__crumb-sep {
+  margin-inline: 0.35rem;
+  opacity: 0.7;
+}
+
+.hub__crumb-current {
+  color: var(--bc-color-text);
+  font-weight: 500;
+}
+
+.hub__header {
+  margin-bottom: 1.5rem;
+}
+
+.hub__title {
+  margin: 0 0 0.65rem;
+  font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+  letter-spacing: -0.03em;
+}
+
+.hub__intro {
+  margin: 0;
+  max-width: 42rem;
+  color: var(--bc-color-muted);
+  line-height: 1.55;
+}
+
+.hub__actions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.hub__action {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.85rem 1rem;
+  background: var(--bc-color-surface);
+  border: 1px solid var(--bc-color-border);
+  border-radius: calc(var(--bc-radius) - 4px);
+  box-shadow: var(--bc-shadow);
+}
+
+.hub__action-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--bc-color-text);
+}
+
+.hub__action-detail {
+  font-size: 0.875rem;
+  color: var(--bc-color-muted);
+  line-height: 1.45;
+}
+
+.hub__footer-note {
+  margin: 2rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--bc-color-muted);
+  line-height: 1.5;
+}

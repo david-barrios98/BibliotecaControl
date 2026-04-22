@@ -2,7 +2,18 @@
   <header class="shell__header">
     <a routerLink="/" class="shell__brand">BibliotecaControl</a>
     <nav class="shell__nav" aria-label="Navegación principal">
-      <span class="shell__nav-placeholder">Autores, libros, préstamos e informes se añadirán aquí.</span>
+      <a
+        routerLink="/"
+        routerLinkActive="shell__link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="shell__link"
+      >
+        Inicio
+      </a>
+      <a routerLink="/autores" routerLinkActive="shell__link--active" class="shell__link">Autores</a>
+      <a routerLink="/libros" routerLinkActive="shell__link--active" class="shell__link">Libros</a>
+      <a routerLink="/prestamos" routerLinkActive="shell__link--active" class="shell__link">Préstamos</a>
+      <a routerLink="/reportes" routerLinkActive="shell__link--active" class="shell__link">Reportes</a>
     </nav>
   </header>
   <main class="shell__main" id="main-content">

@@ -31,12 +31,27 @@
 .shell__nav {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
 }
 
-.shell__nav-placeholder {
+.shell__link {
   font-size: 0.875rem;
+  font-weight: 500;
   color: var(--bc-color-muted);
+  text-decoration: none;
+  padding: 0.35rem 0.55rem;
+  border-radius: 8px;
+}
+
+.shell__link:hover {
+  color: var(--bc-color-accent);
+  background: color-mix(in srgb, var(--bc-color-accent) 8%, transparent);
+}
+
+.shell__link.shell__link--active {
+  color: var(--bc-color-accent);
+  background: color-mix(in srgb, var(--bc-color-accent) 12%, transparent);
 }
 
 .shell__main {

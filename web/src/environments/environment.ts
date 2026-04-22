@@ -4,5 +4,5 @@ import { AppEnvironment } from '../app/core/config/environment.token';
 export const environment: AppEnvironment = {
   production: false,
   apiBaseUrl: '',
-  apiVersionPath: '/api/v1.0',
+  apiVersionPath: '/api/v1',
 };

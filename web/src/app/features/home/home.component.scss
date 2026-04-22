@@ -1,58 +1,137 @@
-.home__header {
+.dash__hero {
   margin-bottom: 2rem;
 }
 
-.home__title {
-  margin: 0 0 0.75rem;
-  font-size: clamp(1.5rem, 2.5vw, 2rem);
-  letter-spacing: -0.03em;
+.dash__title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.65rem, 3vw, 2.25rem);
+  letter-spacing: -0.035em;
 }
 
-.home__lede {
+.dash__subtitle {
   margin: 0;
-  max-width: 52rem;
+  max-width: 46rem;
   color: var(--bc-color-muted);
   line-height: 1.55;
+  font-size: 1rem;
 }
 
-.home__grid {
+.dash__grid {
   display: grid;
   gap: 1.25rem;
 }
 
 @media (min-width: 768px) {
-  .home__grid {
+  .dash__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
   }
 }
 
-.card {
+.area-card {
+  margin: 0;
+}
+
+.area-card__surface {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  height: 100%;
+  padding: 1.25rem 1.35rem;
   background: var(--bc-color-surface);
   border: 1px solid var(--bc-color-border);
   border-radius: var(--bc-radius);
-  padding: 1.25rem 1.35rem;
   box-shadow: var(--bc-shadow);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 }
 
-.card__title {
-  margin: 0 0 0.75rem;
-  font-size: 1.05rem;
+.area-card__surface:hover {
+  border-color: color-mix(in srgb, var(--bc-color-accent) 35%, var(--bc-color-border));
+  box-shadow: 0 4px 14px rgba(17, 24, 39, 0.08);
 }
 
-.card__body {
-  margin: 0;
+.area-card__surface:focus-visible {
+  outline: 2px solid var(--bc-color-accent);
+  outline-offset: 2px;
+}
+
+.area-card__badge {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--bc-color-surface);
+  background: linear-gradient(145deg, var(--bc-color-accent), #2a7ab8);
+  border-radius: 12px;
+}
+
+.area-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.area-card__title {
+  margin: 0 0 0.45rem;
+  font-size: 1.125rem;
+  letter-spacing: -0.02em;
+}
+
+.area-card__summary {
+  margin: 0 0 0.9rem;
+  font-size: 0.9rem;
   color: var(--bc-color-muted);
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
-.card__list {
+.area-card__options {
   margin: 0;
-  padding-left: 1.15rem;
-  color: var(--bc-color-muted);
-  line-height: 1.55;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
 }
 
-.card__list li + li {
-  margin-top: 0.35rem;
+.area-card__option {
+  display: grid;
+  gap: 0.15rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px dashed var(--bc-color-border);
+}
+
+.area-card__option:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.area-card__option-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--bc-color-text);
+}
+
+.area-card__option-hint {
+  font-size: 0.75rem;
+  color: var(--bc-color-muted);
+  line-height: 1.4;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.area-card__cta {
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--bc-color-accent);
+}
+
+.area-card__surface:hover .area-card__cta {
+  color: var(--bc-color-accent-hover);
 }
