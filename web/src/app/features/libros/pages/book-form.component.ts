@@ -257,7 +257,7 @@ export class BookFormComponent implements OnInit {
     this.copies.set(sorted);
     const drafts: Record<number, string> = {};
     for (const c of sorted) {
-      drafts[c.id] = c.copyCode ?? '';
+      drafts[c.id] = c.copyCode;
     }
     this.copyCodeDrafts.set(drafts);
   }
@@ -267,8 +267,12 @@ export class BookFormComponent implements OnInit {
     if (id == null) return;
 
     const raw = this.newCopyCode().trim();
+    if (!raw) {
+      void this.alerts.info('El código de ejemplar (copyCode) es obligatorio.', 'Falta el código');
+      return;
+    }
     this.addingCopy.set(true);
-    this.api.addCopy(id, raw ? { copyCode: raw } : {}).subscribe({
+    this.api.addCopy(id, { copyCode: raw }).subscribe({
       next: () => {
         this.newCopyCode.set('');
         this.alerts.toastSuccess('Ejemplar agregado');
@@ -295,10 +299,11 @@ export class BookFormComponent implements OnInit {
     this.copyCodeDrafts.update((m) => ({ ...m, [copyId]: v }));
   }
 
-  /** Compara borrador vs servidor (trim) para habilitar «Guardar». */
+  /** Borrador distinto al servidor y con código no vacío (copyCode obligatorio). */
   protected copyCodeChanged(c: BookCopyDto): boolean {
     const draft = (this.copyCodeDrafts()[c.id] ?? '').trim();
-    const server = (c.copyCode ?? '').trim();
+    if (!draft) return false;
+    const server = c.copyCode.trim();
     return draft !== server;
   }
 
@@ -306,7 +311,11 @@ export class BookFormComponent implements OnInit {
     const bookId = this.bookId();
     if (bookId == null) return;
     const raw = (this.copyCodeDrafts()[copyId] ?? '').trim();
-    const body: UpdateBookCopyRequestDto = raw === '' ? { copyCode: null } : { copyCode: raw };
+    if (!raw) {
+      void this.alerts.info('El código de ejemplar es obligatorio.', 'Revisa el código');
+      return;
+    }
+    const body: UpdateBookCopyRequestDto = { copyCode: raw };
     this.updatingCopyId.set(copyId);
     this.api.updateCopy(bookId, copyId, body).subscribe({
       next: () => {

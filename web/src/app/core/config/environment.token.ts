@@ -18,27 +18,36 @@ export function apiRootUrl(env: AppEnvironment): string {
 }
 
 /**
- * URLs públicas de ficheros bajo `/uploads/...` que devuelve el API (p. ej. `coverUrl` absoluta al host Kestrel).
- *
- * Con `ng serve`, las peticiones van al origen del dev server (p. ej. `:4200`). Si `coverUrl` es
- * `https://localhost:7198/uploads/...`, el navegador habla directo con el API y puede fallar el TLS
- * de desarrollo. Cuando `apiBaseUrl` está vacío (modo proxy), reescribe a ruta relativa
- * `/uploads/...` para que coincida con `proxy.conf.json` → mismo host que el SPA.
+ * URLs públicas bajo `/uploads/...`:
+ * - El API puede devolver absolutas (`https://host/uploads/...`), relativas con slash (`/uploads/...`)
+ *   o sin slash (`uploads/books/...`). Sin `/` inicial el navegador resuelve mal respecto a la ruta actual.
+ * - Con `ng serve` y `apiBaseUrl` vacío, las absolutas al host del API se reescriben a `/uploads/...`
+ *   para el proxy (`proxy.conf.json`).
  */
 export function resolveUploadsPublicUrl(url: string | null | undefined, env: AppEnvironment): string | null {
   if (url == null) return null;
   const s = String(url).trim();
   if (s === '') return null;
-  if (env.production) return s;
-  const base = env.apiBaseUrl.replace(/\/+$/, '');
-  if (base !== '') return s;
-  try {
-    const u = new URL(s);
-    if ((u.protocol === 'http:' || u.protocol === 'https:') && u.pathname.startsWith('/uploads')) {
-      return `${u.pathname}${u.search}`;
+
+  const isHttpAbsolute = /^https?:\/\//i.test(s);
+
+  if (!isHttpAbsolute) {
+    if (s.startsWith('uploads/') || s.startsWith('/uploads/') || s === 'uploads' || s === '/uploads') {
+      return s.startsWith('/') ? s : `/${s}`;
     }
-  } catch {
-    /* relativa u otro esquema */
+    return s;
+  }
+
+  const base = env.apiBaseUrl.replace(/\/+$/, '');
+  if (!env.production && base === '') {
+    try {
+      const u = new URL(s);
+      if ((u.protocol === 'http:' || u.protocol === 'https:') && u.pathname.startsWith('/uploads')) {
+        return `${u.pathname}${u.search}`;
+      }
+    } catch {
+      /* seguir */
+    }
   }
   return s;
 }

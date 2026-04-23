@@ -54,6 +54,11 @@ export const LIBROS_HUB: ModuleHubRouteData = {
       label: 'Eliminar',
       detail: 'DELETE Book/{id} — elimina libro y archivo de portada en disco si existía.',
     },
+    {
+      label: 'Ejemplares',
+      detail:
+        'POST Book/{id}/Copies — JSON con copyCode obligatorio (único por libro). PUT/DELETE …/Copies/{copyId} para actualizar código o baja lógica.',
+    },
   ],
 };
 

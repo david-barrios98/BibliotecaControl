@@ -95,7 +95,7 @@
       <aside class="bf__card bf__card--side" aria-label="Ejemplares">
         <h2 class="bf__card-title">Ejemplares</h2>
         <p class="bf__hint">
-          Al crear el libro, el backend genera al menos un ejemplar (correlativo #). Puedes editar el código, agregar más o dar de baja ejemplares (salvo restricciones del servidor).
+          Cada ejemplar debe tener un <strong>código único</strong> (copyCode). Al crear el libro el backend puede generar el primero; al agregar más o editar, el código es obligatorio.
         </p>
 
         @if (!canManageCopies()) {
@@ -109,16 +109,18 @@
           <div class="bf__copy-add">
             <input
               type="text"
-              placeholder="Código opcional (ej. BC-0001); vacío = solo correlativo"
+              required
+              placeholder="Código obligatorio (ej. BC-0002)"
               [value]="newCopyCode()"
               (input)="onNewCopyInput($event)"
               [disabled]="!canManageCopies() || addingCopy()"
+              autocomplete="off"
             />
             <button
               type="button"
               class="bf__btn bf__btn--primary"
               (click)="addCopy()"
-              [disabled]="!canManageCopies() || addingCopy()"
+              [disabled]="!canManageCopies() || addingCopy() || !newCopyCode().trim()"
             >
               {{ addingCopy() ? 'Agregando…' : 'Agregar' }}
             </button>
@@ -135,11 +137,13 @@
                     <input
                       type="text"
                       class="bf__copy-input"
+                      required
                       [attr.aria-label]="'Código del ejemplar #' + c.copyNumber"
-                      placeholder="Código opcional; vacío = solo correlativo"
+                      placeholder="Código obligatorio"
                       [value]="copyDraft(c.id)"
                       (input)="onCopyDraftInput(c.id, $event)"
                       [disabled]="!canManageCopies() || rowCopyBusy(c.id)"
+                      autocomplete="off"
                     />
                   </div>
                   <div class="bf__copy-actions">
@@ -168,7 +172,7 @@
 
         <div class="bf__divider"></div>
         <p class="bf__hint">
-          Los cambios se reflejan tras <code>GET Book/&#123;id&#125;</code>. Código duplicado o eliminar el único activo / con préstamo devuelve error del servidor.
+          Los cambios se reflejan tras <code>GET Book/&#123;id&#125;</code>. El código debe ser único por libro; duplicados o restricciones de préstamo devuelven error del servidor.
         </p>
       </aside>
     </div>

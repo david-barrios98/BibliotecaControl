@@ -28,8 +28,8 @@ export class CoverMediaService {
     return of(resolved);
   }
 
-  /** Rutas relativas `/uploads` (proxy en dev o mismo host en prod). */
+  /** Misma petición que el proxy (`/uploads/...`) para adjuntar JWT vía HttpClient. */
   private shouldFetchWithHttp(resolved: string): boolean {
-    return resolved.startsWith('/uploads');
+    return resolved.startsWith('/uploads/') || resolved === '/uploads';
   }
 }

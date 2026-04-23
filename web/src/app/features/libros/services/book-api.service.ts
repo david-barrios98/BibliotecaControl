@@ -13,6 +13,12 @@ import type {
   BookResponseDto,
   UpdateBookCopyRequestDto,
 } from '../models/book.dto';
+import {
+  normalizeBookCopyDto,
+  normalizeBookDetailDto,
+  normalizeBookResponseDto,
+  normalizePagedBookResult,
+} from '../utils/book-dto-normalize';
 
 export interface BookUpsertPayload {
   title: string;
@@ -41,7 +47,7 @@ export class BookApiService {
     if (st) params = params.set('searchTerm', st);
 
     return this.http.get<ApiResponse<PagedResult<BookResponseDto>>>(`${this.bookBase}/List`, { params }).pipe(
-      map((res) => unwrapApiResponse(res)),
+      map((res) => normalizePagedBookResult(unwrapApiResponse(res))),
       catchError((err: unknown) => this.catchEmptyList(err, q)),
     );
   }
@@ -49,13 +55,13 @@ export class BookApiService {
   /** Detalle con ejemplares (`copies`). */
   getById(id: number): Observable<BookDetailResponseDto> {
     return this.http.get<ApiResponse<BookDetailResponseDto>>(`${this.bookBase}/${id}`).pipe(
-      map((res) => unwrapApiResponse(res)),
+      map((res) => normalizeBookDetailDto(unwrapApiResponse(res))),
     );
   }
 
   create(body: BookUpsertPayload): Observable<BookResponseDto> {
     return this.http.post<ApiResponse<BookResponseDto>>(this.bookBase, this.toFormData(body)).pipe(
-      map((res) => unwrapApiResponse(res)),
+      map((res) => normalizeBookResponseDto(unwrapApiResponse(res))),
     );
   }
 
@@ -75,12 +81,9 @@ export class BookApiService {
     );
   }
 
-  /** POST `/Book/{id}/Copies` — body JSON opcional `{ copyCode }`. */
+  /** POST `/Book/{id}/Copies` — body JSON `{ copyCode }` obligatorio. */
   addCopy(bookId: number, body: AddBookCopyRequestDto): Observable<void> {
-    const payload =
-      body.copyCode != null && String(body.copyCode).trim() !== ''
-        ? { copyCode: String(body.copyCode).trim() }
-        : {};
+    const payload = { copyCode: String(body.copyCode).trim() };
     return this.http.post<ApiResponse<unknown>>(`${this.bookBase}/${bookId}/Copies`, payload).pipe(
       map((res) => {
         unwrapApiResponse(res);
@@ -92,7 +95,7 @@ export class BookApiService {
   updateCopy(bookId: number, copyId: number, body: UpdateBookCopyRequestDto): Observable<BookCopyResponseDto> {
     return this.http
       .put<ApiResponse<BookCopyResponseDto>>(`${this.bookBase}/${bookId}/Copies/${copyId}`, body)
-      .pipe(map((res) => unwrapApiResponse(res)));
+      .pipe(map((res) => normalizeBookCopyDto(unwrapApiResponse(res))));
   }
 
   /** DELETE `/Book/{id}/Copies/{copyId}` — baja lógica. **409** si es el único activo o hay préstamo activo. */
