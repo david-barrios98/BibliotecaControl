@@ -1,0 +1,29 @@
+<section class="login" aria-labelledby="login-title">
+  <div class="login__card">
+    <header class="login__header">
+      <a routerLink="/" class="login__brand" aria-label="Ir al inicio">BibliotecaControl</a>
+      <h1 id="login-title" class="login__title">Iniciar sesión</h1>
+      <p class="login__hint">Usa tu usuario admin para acceder al panel.</p>
+    </header>
+
+    <form class="login__form" [formGroup]="form" (ngSubmit)="submit()">
+      <label class="login__field">
+        <span>Usuario</span>
+        <input type="text" formControlName="username" autocomplete="username" placeholder="admin" />
+      </label>
+
+      <label class="login__field">
+        <span>Contraseña</span>
+        <input type="password" formControlName="password" autocomplete="current-password" placeholder="••••••••" />
+      </label>
+
+      <div class="login__actions">
+        <a routerLink="/" class="login__btn login__btn--ghost">Volver</a>
+        <button type="submit" class="login__btn login__btn--primary" [disabled]="submitting()">
+          {{ submitting() ? 'Ingresando…' : 'Ingresar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+

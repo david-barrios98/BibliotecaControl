@@ -3,6 +3,10 @@ import { LIBROS_HUB, PRESTAMOS_HUB, REPORTES_HUB } from './features/module-hub/m
 
 export const routes: Routes = [
   {
+    path: 'login',
+    loadComponent: () => import('./features/auth/pages/login.component').then((m) => m.LoginComponent),
+  },
+  {
     path: '',
     loadComponent: () => import('./shared/layout/shell.component').then((m) => m.ShellComponent),
     children: [
