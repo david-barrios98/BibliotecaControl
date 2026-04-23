@@ -1,3 +1,6 @@
+@import 'sweetalert2/dist/sweetalert2.min.css';
+@import './app/core/notifications/swal-bc-theme.scss';
+
 :root {
   --bc-color-bg: #f4f6f9;
   --bc-color-surface: #ffffff;
@@ -5,6 +8,7 @@
   --bc-color-muted: #5b6472;
   --bc-color-accent: #1e5f8f;
   --bc-color-accent-hover: #174a73;
+  --bc-color-danger: #b71c1c;
   --bc-color-border: #e2e6ee;
   --bc-radius: 12px;
   --bc-shadow: 0 1px 3px rgba(17, 24, 39, 0.07);

@@ -1,0 +1,17 @@
+/* Complementos visuales para SweetAlert2 + BibliotecaControl (variables en :root). */
+
+.bc-swal-popup {
+  border-radius: var(--bc-radius);
+  box-shadow: var(--bc-shadow);
+  font-family: inherit;
+}
+
+.bc-swal-btn.swal2-styled {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 0.45rem 1rem;
+}
+
+.bc-swal-btn--muted.swal2-styled {
+  background-color: var(--bc-color-muted) !important;
+}

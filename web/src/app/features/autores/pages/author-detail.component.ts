@@ -4,14 +4,14 @@ import { AuthorApiService } from '../services/author-api.service';
 import type { AuthorResponseDto } from '../models/author.dto';
 import { parseHttpError } from '@core/http/api-response-helpers';
 import { LoadingBlockComponent } from '@shared/ui/loading-block.component';
-import { ErrorAlertComponent } from '@shared/ui/error-alert.component';
+import { AlertService } from '@core/notifications/alert.service';
 import { BackLinkComponent } from '@shared/ui/back-link.component';
 import { formatIsoDateDisplay } from '@core/utils/date-input';
 
 @Component({
   selector: 'app-author-detail',
   standalone: true,
-  imports: [RouterLink, LoadingBlockComponent, ErrorAlertComponent, BackLinkComponent],
+  imports: [RouterLink, LoadingBlockComponent, BackLinkComponent],
   templateUrl: './author-detail.component.html',
   styleUrl: './author-detail.component.scss',
 })
@@ -19,10 +19,11 @@ export class AuthorDetailComponent implements OnInit {
   private readonly api = inject(AuthorApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly alerts = inject(AlertService);
 
   protected readonly loading = signal(true);
-  protected readonly loadError = signal<string | null>(null);
-  protected readonly deleteError = signal<string | null>(null);
+  /** Tras fallo de carga con diálogo cerrado sin reintentar. */
+  protected readonly loadFailed = signal(false);
   /** URL sin id numérico válido: sin reintento de carga. */
   protected readonly invalidId = signal(false);
   protected readonly author = signal<AuthorResponseDto | null>(null);
@@ -34,14 +35,14 @@ export class AuthorDetailComponent implements OnInit {
     if (!idParam) {
       this.loading.set(false);
       this.invalidId.set(true);
-      this.loadError.set('Identificador no válido.');
+      void this.alerts.error('El identificador del autor no es válido.', 'Error');
       return;
     }
     this.id = +idParam;
     if (Number.isNaN(this.id)) {
       this.loading.set(false);
       this.invalidId.set(true);
-      this.loadError.set('Identificador no válido.');
+      void this.alerts.error('El identificador del autor no es válido.', 'Error');
       return;
     }
     this.load();
@@ -49,8 +50,7 @@ export class AuthorDetailComponent implements OnInit {
 
   private load(): void {
     this.loading.set(true);
-    this.loadError.set(null);
-    this.deleteError.set(null);
+    this.loadFailed.set(false);
     this.api.getById(this.id).subscribe({
       next: (a) => {
         this.author.set(a);
@@ -59,9 +59,19 @@ export class AuthorDetailComponent implements OnInit {
       error: (err: unknown) => {
         this.loading.set(false);
         this.author.set(null);
-        this.loadError.set(parseHttpError(err));
+        void this.afterLoadError(parseHttpError(err));
       },
     });
+  }
+
+  private async afterLoadError(message: string): Promise<void> {
+    if (this.invalidId()) return;
+    const retry = await this.alerts.errorWithRetry(message, 'No se pudo cargar el autor');
+    if (retry) {
+      this.load();
+    } else {
+      this.loadFailed.set(true);
+    }
   }
 
   protected retryLoad(): void {
@@ -78,17 +88,19 @@ export class AuthorDetailComponent implements OnInit {
     return formatIsoDateDisplay(iso, 'long');
   }
 
-  protected confirmDelete(): void {
+  protected async confirmDelete(): Promise<void> {
     const a = this.author();
     if (!a) return;
-    const ok = window.confirm(`¿Eliminar al autor "${this.displayName(a)}"? Solo es posible si no tiene libros.`);
+    const ok = await this.alerts.confirmDanger({
+      title: 'Eliminar autor',
+      text: `¿Eliminar a «${this.displayName(a)}»? Solo es posible si no tiene libros.`,
+    });
     if (!ok) return;
 
-    this.deleteError.set(null);
     this.api.delete(a.id).subscribe({
       next: () => void this.router.navigate(['/autores']),
       error: (err: unknown) => {
-        this.deleteError.set(parseHttpError(err));
+        void this.alerts.error(parseHttpError(err), 'No se pudo eliminar');
       },
     });
   }

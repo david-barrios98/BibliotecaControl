@@ -36,6 +36,12 @@
   letter-spacing: -0.03em;
 }
 
+.ad__intro {
+  margin: 0 0 1rem;
+  color: var(--bc-color-muted);
+  font-size: 0.9rem;
+}
+
 .ad__actions {
   display: flex;
   flex-wrap: wrap;

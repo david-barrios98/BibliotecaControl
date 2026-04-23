@@ -8,22 +8,12 @@
 
   <h1 id="af-title" class="af__title">{{ isEdit() ? 'Editar autor' : 'Nuevo autor' }}</h1>
 
-  @if (loadError(); as le) {
-    <app-error-alert
-      [message]="le"
-      heading="No se pudieron cargar los datos"
-      [showRetry]="isEdit()"
-      (retry)="retryInitialLoad()"
-    />
-  }
-
-  @if (submitError(); as se) {
-    <app-error-alert [message]="se" heading="No se pudo guardar" [showRetry]="false" />
-  }
-
   @if (isEdit() && loading()) {
     <app-loading-block label="Cargando datos del autor…" />
-  } @else if (isEdit() === false || loadError() === null) {
+  } @else if (isEdit() && editLoadFailed()) {
+    <p class="af__intro">No se pudieron cargar los datos del autor.</p>
+    <a routerLink="/autores" class="af__btn af__btn--ghost">Volver al listado</a>
+  } @else if (!isEdit() || !editLoadFailed()) {
     <form class="af__form" [formGroup]="form" (ngSubmit)="submit()">
       <div class="af__grid">
         <div class="af__field">
