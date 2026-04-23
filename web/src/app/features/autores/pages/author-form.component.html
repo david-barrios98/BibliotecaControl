@@ -33,7 +33,12 @@
         </div>
         <div class="af__field">
           <label for="af-country">País</label>
-          <input id="af-country" type="text" formControlName="country" autocomplete="country-name" maxlength="50" />
+          <select id="af-country" formControlName="country" [disabled]="loadingCountries()">
+            <option value="" disabled>Selecciona un país…</option>
+            @for (c of countries(); track c) {
+              <option [value]="c">{{ c }}</option>
+            }
+          </select>
           <app-control-validation-message [control]="form.controls.country" [overrides]="authorFieldMessages['country']" />
         </div>
         <div class="af__field af__field--full">

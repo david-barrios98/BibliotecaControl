@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthorApiService } from '../services/author-api.service';
+import { CountryApiService } from '../services/country-api.service';
 import type { AuthorRequestDto } from '../models/author.dto';
 import { parseHttpError } from '@core/http/api-response-helpers';
 import { LoadingBlockComponent } from '@shared/ui/loading-block.component';
@@ -27,12 +28,15 @@ import { BackLinkComponent } from '@shared/ui/back-link.component';
 export class AuthorFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(AuthorApiService);
+  private readonly countriesApi = inject(CountryApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly alerts = inject(AlertService);
 
   protected readonly loading = signal(false);
   protected readonly saving = signal(false);
+  protected readonly loadingCountries = signal(false);
+  protected readonly countries = signal<string[]>([]);
   /** Modo edición: el usuario cerró el diálogo de error sin reintentar. */
   protected readonly editLoadFailed = signal(false);
   protected readonly isEdit = signal(false);
@@ -51,12 +55,22 @@ export class AuthorFormComponent implements OnInit {
   private authorId: number | null = null;
 
   ngOnInit(): void {
+    this.loadCountries();
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.authorId = +idParam;
       this.isEdit.set(true);
       this.loadAuthor(this.authorId);
     }
+  }
+
+  private loadCountries(): void {
+    this.loadingCountries.set(true);
+    this.countriesApi.list().subscribe({
+      next: (items) => this.countries.set(items),
+      error: () => this.countries.set([]),
+      complete: () => this.loadingCountries.set(false),
+    });
   }
 
   private loadAuthor(id: number): void {
