@@ -21,8 +21,7 @@ export const routes: Routes = [
       },
       {
         path: 'libros',
-        loadComponent: () => import('./features/module-hub/module-hub.component').then((m) => m.ModuleHubComponent),
-        data: { hub: LIBROS_HUB },
+        loadChildren: () => import('./features/libros/libros.routes').then((m) => m.LIBROS_ROUTES),
       },
       {
         path: 'prestamos',

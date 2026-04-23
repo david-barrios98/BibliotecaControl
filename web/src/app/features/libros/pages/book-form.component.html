@@ -1,0 +1,149 @@
+<section class="bf" aria-labelledby="bf-title">
+  <app-back-link [link]="['/libros']" label="Lista de libros" />
+
+  <header class="bf__header">
+    <div>
+      <h1 id="bf-title" class="bf__title">{{ title() }}</h1>
+      <p class="bf__intro">Todo en una sola vista: datos del libro, portada y ejemplares.</p>
+    </div>
+    <div class="bf__header-actions">
+      <a routerLink="/libros" class="bf__btn bf__btn--ghost">Volver</a>
+      <button type="button" class="bf__btn bf__btn--primary" (click)="submit()" [disabled]="saving()">
+        {{ saving() ? 'Guardando…' : 'Guardar' }}
+      </button>
+    </div>
+  </header>
+
+  @if (isEdit() && loading()) {
+    <app-loading-block label="Cargando libro…" />
+  } @else if (loadFailed()) {
+    <p class="bf__intro">No se pudo cargar el libro.</p>
+  } @else {
+    <div class="bf__layout">
+      <form class="bf__card" [formGroup]="form" (ngSubmit)="submit()">
+        <h2 class="bf__card-title">Detalles</h2>
+        <p class="bf__hint">Los campos con <span class="bf__req" aria-hidden="true">*</span> son obligatorios.</p>
+
+        <div class="bf__grid">
+          <div class="bf__field bf__field--full">
+            <label for="bf-title-in">Título <span class="bf__req" aria-hidden="true">*</span></label>
+            <input id="bf-title-in" type="text" formControlName="title" maxlength="200" required />
+          </div>
+
+          <div class="bf__field">
+            <label for="bf-author">Autor <span class="bf__req" aria-hidden="true">*</span></label>
+            <select id="bf-author" formControlName="authorId" [disabled]="loadingAuthors()">
+              <option [ngValue]="0" disabled>Selecciona un autor…</option>
+              @for (a of authors(); track a.id) {
+                <option [ngValue]="a.id">{{ authorDisplayName(a) }}</option>
+              }
+            </select>
+            @if (loadingAuthors()) {
+              <small class="bf__hint">Cargando autores…</small>
+            }
+          </div>
+
+          <div class="bf__field">
+            <label for="bf-gender">Género <span class="bf__req" aria-hidden="true">*</span></label>
+            <select id="bf-gender" formControlName="gender" [disabled]="loadingGenders()">
+              <option value="" disabled>Selecciona un género…</option>
+              @for (g of genders(); track genderOptionValue(g)) {
+                <option [value]="genderOptionValue(g)">{{ g.name }}</option>
+              }
+            </select>
+            @if (loadingGenders()) {
+              <small class="bf__hint">Cargando géneros…</small>
+            }
+          </div>
+
+          <div class="bf__field">
+            <label for="bf-pages">Páginas <span class="bf__req" aria-hidden="true">*</span></label>
+            <input id="bf-pages" type="number" min="1" formControlName="numberOfPages" required />
+          </div>
+
+          <div class="bf__field">
+            <label for="bf-pub">Publicado <span class="bf__req" aria-hidden="true">*</span></label>
+            <input id="bf-pub" type="date" formControlName="publishedDate" required />
+          </div>
+        </div>
+
+        <div class="bf__divider"></div>
+
+        <h2 class="bf__card-title">Portada</h2>
+        <div class="bf__cover-row">
+          <div class="bf__cover">
+            @if (coverPreviewUrl(); as url) {
+              <img [src]="url" alt="" />
+            } @else {
+              <div class="bf__cover-ph">Sin portada</div>
+            }
+          </div>
+          <div class="bf__cover-actions">
+            <label class="bf__file">
+              <input type="file" accept="image/*" (change)="onCoverSelected($event)" />
+              <span class="bf__btn bf__btn--ghost">Elegir imagen…</span>
+            </label>
+            <button type="button" class="bf__btn bf__btn--ghost" (click)="clearCover()">Quitar</button>
+            <p class="bf__hint">Si no subes archivo en edición, se conserva la portada actual.</p>
+          </div>
+        </div>
+      </form>
+
+      <aside class="bf__card bf__card--side" aria-label="Ejemplares">
+        <h2 class="bf__card-title">Ejemplares</h2>
+        <p class="bf__hint">
+          Diseñado para trabajar en esta misma vista. Al crear el libro se habilita el módulo de ejemplares.
+        </p>
+
+        @if (!canManageCopies()) {
+          <div class="bf__callout">
+            <strong>Primero guarda el libro.</strong>
+            <p>Después podrás crear y administrar ejemplares asociados al libro.</p>
+          </div>
+        }
+
+        <div class="bf__copies">
+          <div class="bf__copy-add">
+            <input
+              type="text"
+              placeholder="Código de ejemplar (ej. BC-0001)"
+              [value]="newCopyCode()"
+              (input)="onNewCopyInput($event)"
+              [disabled]="!canManageCopies()"
+            />
+            <button type="button" class="bf__btn bf__btn--primary" (click)="addCopy()" [disabled]="!canManageCopies()">
+              Agregar
+            </button>
+          </div>
+
+          @if (copies().length === 0) {
+            <p class="bf__hint">Aún no has agregado ejemplares en esta sesión.</p>
+          } @else {
+            <ul class="bf__copy-list">
+              @for (c of copies(); track c.id) {
+                <li class="bf__copy-item">
+                  <span class="bf__copy-code">{{ c.code }}</span>
+                  <span class="bf__pill">{{ c.status }}</span>
+                  <button
+                    type="button"
+                    class="bf__btn bf__btn--ghost"
+                    (click)="removeCopy(c.id)"
+                    [disabled]="!canManageCopies()"
+                  >
+                    Quitar
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+
+        <div class="bf__divider"></div>
+        <p class="bf__hint">
+          Nota: la persistencia de ejemplares depende de endpoints del backend (los conecto cuando me compartas esas rutas/DTOs).
+        </p>
+      </aside>
+    </div>
+  }
+</section>
+

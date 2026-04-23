@@ -1,0 +1,99 @@
+<section class="bl" aria-labelledby="bl-title">
+  <app-back-link [link]="['/']" label="Inicio" />
+
+  <header class="bl__header">
+    <div>
+      <h1 id="bl-title" class="bl__title">Libros</h1>
+      <p class="bl__intro">Crea/edita libros con portada (multipart) y administra ejemplares.</p>
+    </div>
+    <a routerLink="/libros/nuevo" class="bl__btn bl__btn--primary">Nuevo libro</a>
+  </header>
+
+  <form class="bl__filters" (submit)="onSearchSubmit($event)" role="search" aria-label="Buscar libros">
+    <label class="bl__search">
+      <span class="bl__search-label">Buscar</span>
+      <input
+        class="bl__search-input"
+        type="search"
+        placeholder="Título, autor…"
+        [value]="searchTerm()"
+        (input)="onSearchInput($event)"
+      />
+    </label>
+    <div class="bl__filters-actions">
+      <button type="submit" class="bl__btn bl__btn--ghost">Aplicar</button>
+      <button type="button" class="bl__btn bl__btn--ghost" (click)="clearSearch()" [disabled]="!searchTerm().trim()">
+        Limpiar
+      </button>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <app-loading-block label="Cargando libros…" />
+  } @else {
+    @if (listLoadFailed()) {
+      <p class="bl__intro">No se pudo cargar el listado.</p>
+      <button type="button" class="bl__btn bl__btn--primary" (click)="loadPage()">Reintentar</button>
+    } @else if (isEmpty()) {
+      <app-empty-state
+        title="Sin libros"
+        hint="Aún no hay libros, o ninguno coincide con la búsqueda."
+        actionLabel="Crear primer libro"
+        [actionLink]="['/libros', 'nuevo']"
+      />
+    } @else {
+      <div class="bl__grid">
+        @for (b of books(); track b.id) {
+          <article class="bl__card">
+            <div class="bl__cover" [class.bl__cover--empty]="!hasCover(b)">
+              @if (hasCover(b)) {
+                <img [src]="b.coverUrl!" alt="" loading="lazy" />
+              } @else {
+                <span class="bl__cover-ph">Sin portada</span>
+              }
+            </div>
+            <div class="bl__meta">
+              <h2 class="bl__card-title">{{ b.title }}</h2>
+              <p class="bl__card-sub">
+                {{ b.authorName || ('Autor #' + b.authorId) }} · {{ b.gender }} · {{ b.numberOfPages }} pág.
+              </p>
+              <p class="bl__card-sub">Publicado: {{ formatPublished(b.publishedDate) }}</p>
+            </div>
+            <div class="bl__card-actions">
+              <a [routerLink]="['/libros', b.id, 'editar']" class="bl__btn bl__btn--ghost">Editar</a>
+            </div>
+          </article>
+        }
+      </div>
+
+      <footer class="bl__pager" aria-label="Paginación">
+        <div class="bl__pager-size">
+          <label for="page-size">Por página</label>
+          <select id="page-size" class="bl__select" (change)="onPageSizeChange($event)" [value]="pageSize()">
+            @for (s of pageSizeOptions; track s) {
+              <option [value]="s">{{ s }}</option>
+            }
+          </select>
+        </div>
+        <div class="bl__pager-nav">
+          <button type="button" class="bl__btn bl__btn--ghost" (click)="prevPage()" [disabled]="pageNumber() <= 1">
+            Anterior
+          </button>
+          <span class="bl__pager-info">
+            Página {{ pageNumber() }} @if (totalPages() > 0) { de {{ totalPages() }} }
+            · {{ totalRecords() }} registro(s)
+          </span>
+          <button
+            type="button"
+            class="bl__btn bl__btn--ghost"
+            (click)="nextPage()"
+            [disabled]="totalPages() === 0 || pageNumber() >= totalPages()"
+          >
+            Siguiente
+          </button>
+        </div>
+      </footer>
+    }
+  }
+</section>
+

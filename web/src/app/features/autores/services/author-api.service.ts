@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, map, of, throwError } from 'rxjs';
+import { Observable, catchError, forkJoin, map, of, switchMap, throwError } from 'rxjs';
 import { apiRootUrl, ENVIRONMENT } from '@core/config/environment.token';
 import type { ApiResponse } from '@core/models/api-response';
 import type { PagedResult } from '@core/models/paged-result';
@@ -29,6 +29,31 @@ export class AuthorApiService {
     return this.http.get<ApiResponse<PagedResult<AuthorResponseDto>>>(`${this.authorBase}/List`, { params }).pipe(
       map((res) => unwrapApiResponse(res)),
       catchError((err: unknown) => this.catchEmptyAuthorList(err, pageNumber, pageSize)),
+    );
+  }
+
+  /**
+   * Autores para combos (pagina todas las páginas hasta completar el catálogo).
+   * Usa `pageSize` acotado por el backend (típico máx. 50).
+   */
+  listAllForLookup(pageSize = 50): Observable<AuthorResponseDto[]> {
+    return this.list(1, pageSize).pipe(
+      switchMap((first) => {
+        const items = [...(first.items ?? [])];
+        const totalPages = first.totalPages ?? 1;
+        if (totalPages <= 1) {
+          return of(items);
+        }
+        const rest = Array.from({ length: totalPages - 1 }, (_, i) => this.list(i + 2, pageSize));
+        return forkJoin(rest).pipe(
+          map((pages) => {
+            for (const pg of pages) {
+              items.push(...(pg.items ?? []));
+            }
+            return items;
+          }),
+        );
+      }),
     );
   }
 

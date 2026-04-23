@@ -1,0 +1,221 @@
+.bl__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 520px) {
+  .bl__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .bl__header .bl__btn--primary {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+}
+
+.bl__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.5rem;
+  letter-spacing: -0.03em;
+}
+
+.bl__intro {
+  margin: 0;
+  color: var(--bc-color-muted);
+  font-size: 0.9rem;
+}
+
+.bl__filters {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.bl__search {
+  display: grid;
+  gap: 0.35rem;
+  min-width: min(24rem, 100%);
+  flex: 1;
+}
+
+.bl__search-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--bc-color-text);
+}
+
+.bl__search-input {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border-radius: 10px;
+  border: 1px solid var(--bc-color-border);
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.bl__filters-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.bl__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.bl__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.bl__btn--primary {
+  background: var(--bc-color-accent);
+  color: #fff;
+}
+
+.bl__btn--primary:hover:not(:disabled) {
+  background: var(--bc-color-accent-hover);
+}
+
+.bl__btn--ghost {
+  background: transparent;
+  border-color: var(--bc-color-border);
+  color: var(--bc-color-accent);
+}
+
+.bl__btn--ghost:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--bc-color-accent) 8%, transparent);
+}
+
+.bl__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 980px) {
+  .bl__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .bl__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bl__card {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  grid-template-rows: auto auto;
+  gap: 0.75rem 0.9rem;
+  padding: 0.9rem;
+  border-radius: var(--bc-radius);
+  background: var(--bc-color-surface);
+  border: 1px solid var(--bc-color-border);
+  box-shadow: var(--bc-shadow);
+}
+
+.bl__cover {
+  grid-row: 1 / span 2;
+  width: 84px;
+  height: 112px;
+  border-radius: 12px;
+  border: 1px solid var(--bc-color-border);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--bc-color-bg) 70%, var(--bc-color-surface));
+  display: grid;
+  place-items: center;
+}
+
+.bl__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bl__cover-ph {
+  font-size: 0.75rem;
+  color: var(--bc-color-muted);
+  text-align: center;
+  padding: 0.25rem;
+}
+
+.bl__card-title {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.bl__card-sub {
+  margin: 0.25rem 0 0;
+  color: var(--bc-color-muted);
+  font-size: 0.875rem;
+}
+
+.bl__card-actions {
+  grid-column: 2;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.bl__pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.bl__pager-size {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--bc-color-muted);
+}
+
+.bl__select {
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--bc-color-border);
+  font-family: inherit;
+}
+
+.bl__pager-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.bl__pager-info {
+  font-size: 0.875rem;
+  color: var(--bc-color-muted);
+}
+
