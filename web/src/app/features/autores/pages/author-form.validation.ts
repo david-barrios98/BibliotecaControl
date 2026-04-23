@@ -13,9 +13,9 @@ export const authorFieldMessages: Record<string, FieldValidationOverrides> = {
   birthDate: {
     required: 'Seleccione la fecha de nacimiento (día, mes y año).',
   },
-  country: {
-    required: 'Indique el país.',
-    maxlength: (e) => `El país admite como máximo ${e.requiredLength} caracteres.`,
+  countryId: {
+    required: 'Seleccione un país.',
+    min: () => 'Seleccione un país.',
   },
   biography: {
     maxlength: (e) => `La biografía admite como máximo ${e.requiredLength} caracteres.`,

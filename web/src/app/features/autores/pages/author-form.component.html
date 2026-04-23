@@ -33,13 +33,16 @@
         </div>
         <div class="af__field">
           <label for="af-country">País</label>
-          <select id="af-country" formControlName="country" [disabled]="loadingCountries()">
-            <option value="" disabled>Selecciona un país…</option>
-            @for (c of countries(); track c) {
-              <option [value]="c">{{ c }}</option>
+          <select id="af-country" formControlName="countryId" [disabled]="loadingCountries()">
+            <option [ngValue]="0" disabled>Selecciona un país…</option>
+            @for (c of countries(); track c.id) {
+              <option [ngValue]="c.id">{{ c.name }}</option>
             }
           </select>
-          <app-control-validation-message [control]="form.controls.country" [overrides]="authorFieldMessages['country']" />
+          <app-control-validation-message
+            [control]="form.controls.countryId"
+            [overrides]="authorFieldMessages['countryId']"
+          />
         </div>
         <div class="af__field af__field--full">
           <label for="af-bio">Biografía <span class="af__optional">(opcional)</span></label>

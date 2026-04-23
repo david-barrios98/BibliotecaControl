@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthorApiService } from '../services/author-api.service';
-import { CountryApiService } from '../services/country-api.service';
+import { CountryApiService, type CountryLookupDto } from '../services/country-api.service';
 import type { AuthorRequestDto } from '../models/author.dto';
 import { parseHttpError } from '@core/http/api-response-helpers';
 import { LoadingBlockComponent } from '@shared/ui/loading-block.component';
@@ -36,7 +36,7 @@ export class AuthorFormComponent implements OnInit {
   protected readonly loading = signal(false);
   protected readonly saving = signal(false);
   protected readonly loadingCountries = signal(false);
-  protected readonly countries = signal<string[]>([]);
+  protected readonly countries = signal<CountryLookupDto[]>([]);
   /** Modo edición: el usuario cerró el diálogo de error sin reintentar. */
   protected readonly editLoadFailed = signal(false);
   protected readonly isEdit = signal(false);
@@ -48,7 +48,7 @@ export class AuthorFormComponent implements OnInit {
     name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]],
     lastName: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]],
     birthDate: ['', Validators.required],
-    country: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
+    countryId: [0, [Validators.required, Validators.min(1)]],
     biography: ['', Validators.maxLength(500)],
   });
 
@@ -82,7 +82,7 @@ export class AuthorFormComponent implements OnInit {
           name: a.name ?? '',
           lastName: a.lastName ?? '',
           birthDate: isoToDateInputValue(a.birthDate),
-          country: a.country ?? '',
+          countryId: a.countryId ?? 0,
           biography: a.biography ?? '',
         });
         this.loading.set(false);
@@ -113,7 +113,7 @@ export class AuthorFormComponent implements OnInit {
       name: v.name.trim(),
       lastName: v.lastName.trim(),
       birthDate: dateInputToIsoUtcNoon(v.birthDate),
-      country: v.country.trim(),
+      countryId: v.countryId,
       biography: v.biography.trim() ? v.biography.trim() : null,
     };
 

@@ -5,28 +5,10 @@ import { apiRootUrl, ENVIRONMENT } from '@core/config/environment.token';
 import type { ApiResponse } from '@core/models/api-response';
 import { unwrapApiResponse } from '@core/http/api-response-helpers';
 
-type CountryListPayload =
-  | string[]
-  | { name?: string | null; code?: string | null }[];
-
-function normalizeCountryList(payload: CountryListPayload | unknown): string[] {
-  if (Array.isArray(payload)) {
-    return payload
-      .map((x) => {
-        if (typeof x === 'string') return x;
-        if (x && typeof x === 'object') {
-          const name = (x as { name?: unknown }).name;
-          const code = (x as { code?: unknown }).code;
-          if (typeof name === 'string' && name.trim()) return name.trim();
-          if (typeof code === 'string' && code.trim()) return code.trim();
-        }
-        return '';
-      })
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .filter((v, i, arr) => arr.indexOf(v) === i);
-  }
-  return [];
+export interface CountryLookupDto {
+  id: number;
+  code: string;
+  name: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -44,14 +26,14 @@ export class CountryApiService {
   list() {
     const roots = this.roots();
     const tryGet = (base: string) =>
-      this.http.get<ApiResponse<CountryListPayload>>(`${base}/Country/List`).pipe(
-        map((res) => normalizeCountryList(unwrapApiResponse(res))),
+      this.http.get<ApiResponse<CountryLookupDto[]>>(`${base}/Country/List`).pipe(
+        map((res) => (unwrapApiResponse(res) ?? []).filter(Boolean)),
       );
 
     return of(roots).pipe(
       switchMap(([first, second]) =>
         tryGet(first).pipe(
-          catchError((err) => (second ? tryGet(second) : of([]))),
+          catchError(() => (second ? tryGet(second) : of([]))),
           catchError(() => of([])),
         ),
       ),

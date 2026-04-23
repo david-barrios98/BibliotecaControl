@@ -38,7 +38,7 @@
                 <td>
                   <a [routerLink]="['/autores', a.id]" class="al__link">{{ displayName(a) }}</a>
                 </td>
-                <td>{{ a.country || '—' }}</td>
+                <td>{{ countryLabel(a) }}</td>
                 <td>{{ formatBirthColumn(a.birthDate) }}</td>
                 <td class="al__col-actions">
                   <a [routerLink]="['/autores', a.id, 'editar']" class="al__btn al__btn--ghost">Editar</a>

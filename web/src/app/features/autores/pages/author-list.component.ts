@@ -88,6 +88,10 @@ export class AuthorListComponent implements OnInit {
     return [a.name, a.lastName].filter(Boolean).join(' ') || '(sin nombre)';
   }
 
+  protected countryLabel(a: AuthorResponseDto): string {
+    return a.countryName ?? a.country ?? '—';
+  }
+
   protected formatBirthColumn(iso: string | null | undefined): string {
     return formatIsoDateDisplay(iso, 'short');
   }

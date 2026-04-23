@@ -4,7 +4,7 @@ export interface AuthorRequestDto {
   lastName: string;
   /** ISO 8601 (date-time). */
   birthDate: string;
-  country: string;
+  countryId: number;
   biography?: string | null;
 }
 
@@ -14,6 +14,11 @@ export interface AuthorResponseDto {
   name: string | null;
   lastName: string | null;
   birthDate: string;
-  country: string | null;
+  /** Id del país asociado (nuevo contrato). */
+  countryId?: number | null;
+  /** Nombre del país (si el backend lo expone para UI). */
+  countryName?: string | null;
+  /** Compat legado: algunos endpoints podrían seguir enviando `country` como texto. */
+  country?: string | null;
   biography: string | null;
 }
