@@ -1,0 +1,104 @@
+<section class="pl" aria-labelledby="pl-title">
+  <app-back-link [link]="['/']" label="Inicio" />
+  <header class="pl__header">
+    <div>
+      <h1 id="pl-title" class="pl__title">Personas</h1>
+      <p class="pl__intro">
+        Listado paginado; la búsqueda incluye nombre, apellido, correo, teléfono y dirección (<code>searchTerm</code>).
+      </p>
+    </div>
+    <a routerLink="/personas/nuevo" class="pl__btn pl__btn--primary">Nueva persona</a>
+  </header>
+
+  <form class="pl__filters" (submit)="onSearchSubmit($event)" role="search" aria-label="Buscar personas">
+    <label class="pl__search">
+      <span class="pl__search-label">Buscar</span>
+      <input
+        class="pl__search-input"
+        type="search"
+        placeholder="Nombre, apellido, correo, teléfono, dirección…"
+        [value]="searchTerm()"
+        (input)="onSearchInput($event)"
+      />
+    </label>
+    <div class="pl__filters-actions">
+      <button type="submit" class="pl__btn pl__btn--ghost">Aplicar</button>
+      <button type="button" class="pl__btn pl__btn--ghost" (click)="clearSearch()" [disabled]="!searchTerm().trim()">
+        Limpiar
+      </button>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <app-loading-block label="Cargando personas…" />
+  } @else {
+    @if (listLoadFailed()) {
+      <p class="pl__intro">No se pudo cargar el listado.</p>
+      <button type="button" class="pl__btn pl__btn--primary" (click)="loadPage()">Reintentar</button>
+    } @else if (isEmpty()) {
+      <app-empty-state
+        title="Sin personas"
+        hint="Aún no hay registros o ninguno coincide con la búsqueda."
+        actionLabel="Registrar primera persona"
+        [actionLink]="['/personas', 'nuevo']"
+      />
+    } @else {
+      <div class="pl__table-wrap">
+        <table class="pl__table">
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Documento</th>
+              <th scope="col">Correo</th>
+              <th scope="col">Teléfono</th>
+              <th scope="col" class="pl__col-actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of persons(); track p.id) {
+              <tr>
+                <td>
+                  <a [routerLink]="['/personas', p.id]" class="pl__link">{{ displayName(p) }}</a>
+                </td>
+                <td>{{ dash(p.nationalId) }}</td>
+                <td>{{ dash(p.email) }}</td>
+                <td>{{ dash(p.phone) }}</td>
+                <td class="pl__col-actions">
+                  <a [routerLink]="['/personas', p.id, 'editar']" class="pl__btn pl__btn--ghost">Editar</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="pl__pager" aria-label="Paginación">
+        <div class="pl__pager-size">
+          <label for="pl-page-size">Por página</label>
+          <select id="pl-page-size" class="pl__select" (change)="onPageSizeChange($event)" [value]="pageSize()">
+            @for (s of pageSizeOptions; track s) {
+              <option [value]="s">{{ s }}</option>
+            }
+          </select>
+        </div>
+        <div class="pl__pager-nav">
+          <button type="button" class="pl__btn pl__btn--ghost" (click)="prevPage()" [disabled]="pageNumber() <= 1">
+            Anterior
+          </button>
+          <span class="pl__pager-info">
+            Página {{ pageNumber() }} @if (totalPages() > 0) { de {{ totalPages() }} }
+            · {{ totalRecords() }} registro(s)
+          </span>
+          <button
+            type="button"
+            class="pl__btn pl__btn--ghost"
+            (click)="nextPage()"
+            [disabled]="totalPages() === 0 || pageNumber() >= totalPages()"
+          >
+            Siguiente
+          </button>
+        </div>
+      </footer>
+    }
+  }
+</section>

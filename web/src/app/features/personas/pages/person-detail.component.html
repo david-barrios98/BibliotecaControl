@@ -1,0 +1,61 @@
+<section class="pd" aria-labelledby="pd-title">
+  <app-back-link [link]="['/personas']" label="Lista de personas" />
+  <nav class="pd__crumb" aria-label="Migas de pan">
+    <a routerLink="/personas" class="pd__crumb-link">Personas</a>
+    <span class="pd__crumb-sep" aria-hidden="true">/</span>
+    <span class="pd__crumb-current">Detalle</span>
+  </nav>
+
+  @if (loading()) {
+    <app-loading-block label="Cargando…" />
+  } @else {
+    @if (invalidId()) {
+      <p class="pd__intro">Identificador no válido.</p>
+      <a routerLink="/personas" class="pd__btn pd__btn--ghost">Volver al listado</a>
+    } @else if (loadFailed()) {
+      <p class="pd__intro">No se pudo cargar el registro.</p>
+      <button type="button" class="pd__btn pd__btn--primary" (click)="retryLoad()">Reintentar</button>
+    } @else {
+      @if (person(); as p) {
+        <header class="pd__header">
+          <h1 id="pd-title" class="pd__title">{{ displayName(p) }}</h1>
+          <div class="pd__actions">
+            <a [routerLink]="['/personas', p.id, 'editar']" class="pd__btn pd__btn--primary">Editar</a>
+            <button type="button" class="pd__btn pd__btn--danger" (click)="confirmDelete()">Eliminar</button>
+          </div>
+        </header>
+
+        <dl class="pd__dl">
+          <div class="pd__row">
+            <dt>Id</dt>
+            <dd>{{ p.id }}</dd>
+          </div>
+          <div class="pd__row">
+            <dt>Nombre</dt>
+            <dd>{{ p.firstName || '—' }}</dd>
+          </div>
+          <div class="pd__row">
+            <dt>Apellidos</dt>
+            <dd>{{ p.lastName || '—' }}</dd>
+          </div>
+          <div class="pd__row">
+            <dt>Documento</dt>
+            <dd>{{ dash(p.nationalId) }}</dd>
+          </div>
+          <div class="pd__row">
+            <dt>Correo</dt>
+            <dd>{{ dash(p.email) }}</dd>
+          </div>
+          <div class="pd__row">
+            <dt>Teléfono</dt>
+            <dd>{{ dash(p.phone) }}</dd>
+          </div>
+          <div class="pd__row pd__row--block">
+            <dt>Dirección</dt>
+            <dd>{{ p.address?.trim() ? p.address : '—' }}</dd>
+          </div>
+        </dl>
+      }
+    }
+  }
+</section>

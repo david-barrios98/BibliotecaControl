@@ -1,0 +1,151 @@
+.pf__crumb {
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  color: var(--bc-color-muted);
+}
+
+.pf__crumb-link {
+  color: var(--bc-color-accent);
+  text-decoration: none;
+}
+
+.pf__crumb-link:hover {
+  text-decoration: underline;
+}
+
+.pf__crumb-sep {
+  margin-inline: 0.35rem;
+  opacity: 0.7;
+}
+
+.pf__crumb-current {
+  font-weight: 500;
+  color: var(--bc-color-text);
+}
+
+.pf__title {
+  margin: 0 0 1.25rem;
+  font-size: 1.45rem;
+  letter-spacing: -0.03em;
+}
+
+.pf__intro {
+  margin: 0 0 1rem;
+  color: var(--bc-color-muted);
+  font-size: 0.9rem;
+}
+
+.pf__form {
+  max-width: 40rem;
+}
+
+@media (max-width: 480px) {
+  .pf__form {
+    max-width: 100%;
+  }
+}
+
+.pf__grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .pf__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pf__field--full {
+    grid-column: 1 / -1;
+  }
+}
+
+.pf__field label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  color: var(--bc-color-text);
+}
+
+.pf__optional {
+  font-weight: 400;
+  color: var(--bc-color-muted);
+}
+
+.pf__req {
+  color: var(--bc-color-danger);
+  font-weight: 800;
+}
+
+.pf__field input,
+.pf__field textarea {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--bc-color-border);
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.pf__field textarea {
+  resize: vertical;
+  min-height: 4.5rem;
+}
+
+.pf__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.pf__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.pf__btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pf__btn--primary {
+  background: var(--bc-color-accent);
+  color: #fff;
+}
+
+.pf__btn--primary:hover:not(:disabled) {
+  background: var(--bc-color-accent-hover);
+}
+
+.pf__btn--ghost {
+  background: transparent;
+  border-color: var(--bc-color-border);
+  color: var(--bc-color-text);
+}
+
+.pf__btn--ghost:hover {
+  background: color-mix(in srgb, var(--bc-color-bg) 80%, transparent);
+}
+
+@media (max-width: 520px) {
+  .pf__actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .pf__actions .pf__btn {
+    min-height: 44px;
+    justify-content: center;
+  }
+}

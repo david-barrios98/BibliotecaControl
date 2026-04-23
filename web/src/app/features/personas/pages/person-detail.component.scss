@@ -1,0 +1,150 @@
+.pd__crumb {
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  color: var(--bc-color-muted);
+}
+
+.pd__crumb-link {
+  color: var(--bc-color-accent);
+  text-decoration: none;
+}
+
+.pd__crumb-link:hover {
+  text-decoration: underline;
+}
+
+.pd__crumb-sep {
+  margin-inline: 0.35rem;
+}
+
+.pd__crumb-current {
+  font-weight: 500;
+}
+
+.pd__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.pd__title {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: -0.03em;
+}
+
+.pd__intro {
+  margin: 0 0 1rem;
+  color: var(--bc-color-muted);
+  font-size: 0.9rem;
+}
+
+.pd__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 520px) {
+  .pd__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pd__actions {
+    width: 100%;
+  }
+
+  .pd__actions .pd__btn {
+    flex: 1 1 auto;
+    justify-content: center;
+    min-height: 44px;
+  }
+}
+
+.pd__btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.pd__btn--primary {
+  background: var(--bc-color-accent);
+  color: #fff;
+}
+
+.pd__btn--primary:hover {
+  background: var(--bc-color-accent-hover);
+}
+
+.pd__btn--danger {
+  background: transparent;
+  border-color: #c62828;
+  color: #c62828;
+}
+
+.pd__btn--danger:hover {
+  background: #ffebee;
+}
+
+.pd__btn--ghost {
+  background: transparent;
+  border-color: var(--bc-color-border);
+  color: var(--bc-color-accent);
+}
+
+.pd__dl {
+  margin: 0;
+  padding: 1.25rem 1.35rem;
+  border: 1px solid var(--bc-color-border);
+  border-radius: var(--bc-radius);
+  background: var(--bc-color-surface);
+  box-shadow: var(--bc-shadow);
+}
+
+.pd__row {
+  display: grid;
+  grid-template-columns: minmax(8rem, 11rem) 1fr;
+  gap: 0.5rem 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--bc-color-border);
+  font-size: 0.95rem;
+}
+
+.pd__row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.pd__row:first-child {
+  padding-top: 0;
+}
+
+.pd__row dt {
+  margin: 0;
+  font-weight: 600;
+  color: var(--bc-color-muted);
+}
+
+.pd__row dd {
+  margin: 0;
+  color: var(--bc-color-text);
+}
+
+.pd__row--block {
+  grid-template-columns: 1fr;
+}
+
+.pd__row--block dd {
+  white-space: pre-wrap;
+}

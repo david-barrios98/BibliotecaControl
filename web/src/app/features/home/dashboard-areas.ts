@@ -31,6 +31,24 @@ export const DASHBOARD_AREAS: DashboardArea[] = [
     ],
   },
   {
+    slug: 'personas',
+    route: '/personas',
+    badge: 'N',
+    title: 'Personas',
+    summary:
+      'Registro de personas: contacto y dirección; POST/PUT con Create/UpdatePersonRequestDto; 409 si el email está en uso.',
+    options: [
+      {
+        label: 'Listado paginado',
+        hint: 'GET Person/List — searchTerm opcional (nombre, apellido, email, teléfono, dirección)',
+      },
+      { label: 'Detalle', hint: 'GET Person/{id} — PersonResponseDto con address' },
+      { label: 'Alta', hint: 'POST Person — CreatePersonRequestDto; 409 si email en uso' },
+      { label: 'Actualización', hint: 'PUT Person/{id} — UpdatePersonRequestDto; 409 si email de otra persona' },
+      { label: 'Baja lógica', hint: 'DELETE Person/{id} — 409 si préstamos activos sin devolver' },
+    ],
+  },
+  {
     slug: 'prestamos',
     route: '/prestamos',
     badge: 'P',

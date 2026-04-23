@@ -24,6 +24,10 @@ export const routes: Routes = [
         loadChildren: () => import('./features/libros/libros.routes').then((m) => m.LIBROS_ROUTES),
       },
       {
+        path: 'personas',
+        loadChildren: () => import('./features/personas/personas.routes').then((m) => m.PERSONAS_ROUTES),
+      },
+      {
         path: 'prestamos',
         loadComponent: () => import('./features/module-hub/module-hub.component').then((m) => m.ModuleHubComponent),
         data: { hub: PRESTAMOS_HUB },
