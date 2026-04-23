@@ -23,6 +23,7 @@ export class AuthorListComponent implements OnInit {
   protected readonly loading = signal(false);
   /** Tras un fallo de red/API: no mostrar estado vacío hasta reintentar con éxito. */
   protected readonly listLoadFailed = signal(false);
+  protected readonly searchTerm = signal('');
   protected readonly authors = signal<AuthorResponseDto[]>([]);
   protected readonly pageNumber = signal(1);
   protected readonly pageSize = signal(10);
@@ -38,7 +39,7 @@ export class AuthorListComponent implements OnInit {
   protected loadPage(): void {
     this.loading.set(true);
     this.listLoadFailed.set(false);
-    this.api.list(this.pageNumber(), this.pageSize()).subscribe({
+    this.api.list(this.pageNumber(), this.pageSize(), this.searchTerm()).subscribe({
       next: (page) => {
         this.authors.set(page.items ?? []);
         this.pageNumber.set(page.pageNumber);
@@ -80,6 +81,22 @@ export class AuthorListComponent implements OnInit {
   protected onPageSizeChange(event: Event): void {
     const value = +(event.target as HTMLSelectElement).value;
     this.pageSize.set(value);
+    this.pageNumber.set(1);
+    this.loadPage();
+  }
+
+  protected onSearchSubmit(event: Event): void {
+    event.preventDefault();
+    this.pageNumber.set(1);
+    this.loadPage();
+  }
+
+  protected onSearchInput(event: Event): void {
+    this.searchTerm.set((event.target as HTMLInputElement).value);
+  }
+
+  protected clearSearch(): void {
+    this.searchTerm.set('');
     this.pageNumber.set(1);
     this.loadPage();
   }

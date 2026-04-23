@@ -8,13 +8,13 @@
 
     <form class="login__form" [formGroup]="form" (ngSubmit)="submit()">
       <label class="login__field">
-        <span>Usuario</span>
-        <input type="text" formControlName="username" autocomplete="username" placeholder="admin" />
+        <span>Usuario <span class="login__req" aria-hidden="true">*</span></span>
+        <input type="text" formControlName="username" autocomplete="username" placeholder="admin" required />
       </label>
 
       <label class="login__field">
-        <span>Contraseña</span>
-        <input type="password" formControlName="password" autocomplete="current-password" placeholder="••••••••" />
+        <span>Contraseña <span class="login__req" aria-hidden="true">*</span></span>
+        <input type="password" formControlName="password" autocomplete="current-password" placeholder="••••••••" required />
       </label>
 
       <div class="login__actions">

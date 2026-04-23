@@ -17,28 +17,31 @@
     <form class="af__form" [formGroup]="form" (ngSubmit)="submit()">
       <div class="af__grid">
         <div class="af__field">
-          <label for="af-name">Nombre</label>
-          <input id="af-name" type="text" formControlName="name" autocomplete="given-name" maxlength="100" />
+          <label for="af-name">Nombre <span class="af__req" aria-hidden="true">*</span></label>
+          <input id="af-name" type="text" formControlName="name" autocomplete="given-name" maxlength="100" required />
           <app-control-validation-message [control]="form.controls.name" [overrides]="authorFieldMessages['name']" />
         </div>
         <div class="af__field">
-          <label for="af-last">Apellidos</label>
-          <input id="af-last" type="text" formControlName="lastName" autocomplete="family-name" maxlength="100" />
+          <label for="af-last">Apellidos <span class="af__req" aria-hidden="true">*</span></label>
+          <input id="af-last" type="text" formControlName="lastName" autocomplete="family-name" maxlength="100" required />
           <app-control-validation-message [control]="form.controls.lastName" [overrides]="authorFieldMessages['lastName']" />
         </div>
         <div class="af__field">
-          <label for="af-birth">Fecha de nacimiento</label>
-          <input id="af-birth" type="date" formControlName="birthDate" autocomplete="bday" />
+          <label for="af-birth">Fecha de nacimiento <span class="af__req" aria-hidden="true">*</span></label>
+          <input id="af-birth" type="date" formControlName="birthDate" autocomplete="bday" required />
           <app-control-validation-message [control]="form.controls.birthDate" [overrides]="authorFieldMessages['birthDate']" />
         </div>
         <div class="af__field">
-          <label for="af-country">País</label>
+          <label for="af-country">País <span class="af__req" aria-hidden="true">*</span></label>
           <select id="af-country" formControlName="countryId" [disabled]="loadingCountries()">
             <option [ngValue]="0" disabled>Selecciona un país…</option>
             @for (c of countries(); track c.id) {
               <option [ngValue]="c.id">{{ c.name }}</option>
             }
           </select>
+          @if (loadingCountries()) {
+            <small class="af__hint">Cargando países…</small>
+          }
           <app-control-validation-message
             [control]="form.controls.countryId"
             [overrides]="authorFieldMessages['countryId']"

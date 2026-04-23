@@ -73,6 +73,11 @@
   color: var(--bc-color-muted);
 }
 
+.af__req {
+  color: var(--bc-color-danger);
+  font-weight: 800;
+}
+
 .af__field input,
 .af__field select,
 .af__field textarea {

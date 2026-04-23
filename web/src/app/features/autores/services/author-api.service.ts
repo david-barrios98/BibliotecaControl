@@ -16,11 +16,15 @@ export class AuthorApiService {
     return `${apiRootUrl(this.env)}/Author`;
   }
 
-  /** Parámetros de consulta tal como documenta Swagger (`PageNumber`, `PageSize`). */
-  list(pageNumber: number, pageSize: number): Observable<PagedResult<AuthorResponseDto>> {
-    const params = new HttpParams()
-      .set('PageNumber', String(pageNumber))
-      .set('PageSize', String(pageSize));
+  /** Parámetros de consulta tal como documenta Swagger (`pageNumber`, `pageSize`, `searchTerm`). */
+  list(pageNumber: number, pageSize: number, searchTerm?: string): Observable<PagedResult<AuthorResponseDto>> {
+    let params = new HttpParams()
+      .set('pageNumber', String(pageNumber))
+      .set('pageSize', String(pageSize));
+    const q = (searchTerm ?? '').trim();
+    if (q) {
+      params = params.set('searchTerm', q);
+    }
 
     return this.http.get<ApiResponse<PagedResult<AuthorResponseDto>>>(`${this.authorBase}/List`, { params }).pipe(
       map((res) => unwrapApiResponse(res)),

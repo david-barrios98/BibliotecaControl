@@ -3,10 +3,29 @@
   <header class="al__header">
     <div>
       <h1 id="al-title" class="al__title">Autores</h1>
-      <p class="al__intro">Catálogo con paginación contra <code>GET Author/List</code>.</p>
+      <p class="al__intro">Catálogo con paginación y búsqueda (<code>searchTerm</code>).</p>
     </div>
     <a routerLink="/autores/nuevo" class="al__btn al__btn--primary">Nuevo autor</a>
   </header>
+
+  <form class="al__filters" (submit)="onSearchSubmit($event)" role="search" aria-label="Buscar autores">
+    <label class="al__search">
+      <span class="al__search-label">Buscar</span>
+      <input
+        class="al__search-input"
+        type="search"
+        placeholder="Nombre, apellidos…"
+        [value]="searchTerm()"
+        (input)="onSearchInput($event)"
+      />
+    </label>
+    <div class="al__filters-actions">
+      <button type="submit" class="al__btn al__btn--ghost">Aplicar</button>
+      <button type="button" class="al__btn al__btn--ghost" (click)="clearSearch()" [disabled]="!searchTerm().trim()">
+        Limpiar
+      </button>
+    </div>
+  </form>
 
   @if (loading()) {
     <app-loading-block label="Cargando autores…" />
@@ -17,7 +36,7 @@
     } @else if (isEmpty()) {
       <app-empty-state
         title="Sin autores"
-        hint="Aún no hay registros en el catálogo, o ninguno coincide con los filtros de esta página."
+        hint="Aún no hay registros en el catálogo, o ninguno coincide con la búsqueda."
         actionLabel="Crear primer autor"
         [actionLink]="['/autores', 'nuevo']"
       />

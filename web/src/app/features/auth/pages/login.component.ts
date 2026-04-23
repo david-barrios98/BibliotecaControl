@@ -28,6 +28,7 @@ export class LoginComponent {
   protected submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      void this.alerts.info('Completa los campos obligatorios para continuar.', 'Revisa el formulario');
       return;
     }
     const v = this.form.getRawValue();

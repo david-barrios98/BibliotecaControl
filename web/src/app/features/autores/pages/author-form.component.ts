@@ -106,6 +106,7 @@ export class AuthorFormComponent implements OnInit {
   protected submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      void this.alerts.info('Completa los campos obligatorios antes de guardar.', 'Revisa el formulario');
       return;
     }
     const v = this.form.getRawValue();
