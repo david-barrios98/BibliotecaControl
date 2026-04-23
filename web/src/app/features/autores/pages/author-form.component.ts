@@ -6,11 +6,19 @@ import type { AuthorRequestDto } from '../models/author.dto';
 import { parseHttpError } from '@core/http/api-response-helpers';
 import { LoadingBlockComponent } from '@shared/ui/loading-block.component';
 import { ErrorAlertComponent } from '@shared/ui/error-alert.component';
+import { ControlValidationMessageComponent } from '@shared/validation/control-validation-message.component';
+import { authorFieldMessages } from './author-form.validation';
 
 @Component({
   selector: 'app-author-form',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, LoadingBlockComponent, ErrorAlertComponent],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    LoadingBlockComponent,
+    ErrorAlertComponent,
+    ControlValidationMessageComponent,
+  ],
   templateUrl: './author-form.component.html',
   styleUrl: './author-form.component.scss',
 })
@@ -27,6 +35,9 @@ export class AuthorFormComponent implements OnInit {
   /** Error al crear o actualizar. */
   protected readonly submitError = signal<string | null>(null);
   protected readonly isEdit = signal(false);
+
+  /** Overrides de mensajes por campo (registro/edición autor). */
+  protected readonly authorFieldMessages = authorFieldMessages;
 
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]],
@@ -120,14 +131,5 @@ export class AuthorFormComponent implements OnInit {
     if (Number.isNaN(d.getTime())) return '';
     const pad = (n: number) => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  }
-
-  protected fieldError(field: 'name' | 'lastName' | 'birthDate' | 'country' | 'biography'): string | null {
-    const c = this.form.controls[field];
-    if (!c.touched || !c.errors) return null;
-    if (c.errors['required']) return 'Campo obligatorio.';
-    if (c.errors['maxlength']) return `Máximo ${c.errors['maxlength'].requiredLength} caracteres.`;
-    if (c.errors['minlength']) return `Mínimo ${c.errors['minlength'].requiredLength} caracteres.`;
-    return null;
   }
 }
