@@ -1,9 +1,10 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, switchMap, throwError } from 'rxjs';
+import { catchError, finalize, shareReplay, switchMap, throwError } from 'rxjs';
 import { AuthSessionService } from '@core/auth/auth-session.service';
 import { AuthApiService } from '@core/auth/auth-api.service';
+import { AlertService } from '@core/notifications/alert.service';
 
 function isAnonymousPath(url: string): boolean {
   // Endpoints públicos según README.
@@ -17,10 +18,14 @@ function isAnonymousPath(url: string): boolean {
 
 const RETRIED_HEADER = 'x-bc-auth-retried';
 
+let refreshInFlight: ReturnType<AuthApiService['refresh']> | null = null;
+let lastSessionExpiredShownAt = 0;
+
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const session = inject(AuthSessionService);
   const authApi = inject(AuthApiService);
   const router = inject(Router);
+  const alerts = inject(AlertService);
 
   const token = session.getAccessToken();
   const shouldAttach = !!token && !isAnonymousPath(req.url);
@@ -45,6 +50,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       // Evitar bucle: solo reintenta 1 vez.
       if (req.headers.has(RETRIED_HEADER)) {
         session.clear();
+        const now = Date.now();
+        if (now - lastSessionExpiredShownAt > 1500) {
+          lastSessionExpiredShownAt = now;
+          void alerts.info(
+            'Tu sesión expiró o se inició sesión en otro lugar. Vuelve a iniciar sesión.',
+            'Sesión finalizada',
+          );
+        }
         void router.navigate(['/login']);
         return throwError(() => err);
       }
@@ -52,11 +65,31 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       const refreshToken = session.getRefreshToken();
       if (!refreshToken) {
         session.clear();
+        const now = Date.now();
+        if (now - lastSessionExpiredShownAt > 1500) {
+          lastSessionExpiredShownAt = now;
+          void alerts.info(
+            'Tu sesión expiró. Vuelve a iniciar sesión.',
+            'Sesión finalizada',
+          );
+        }
         void router.navigate(['/login']);
         return throwError(() => err);
       }
 
-      return authApi.refresh({ refreshToken }).pipe(
+      // 401 concurrentes: hacer 1 refresh compartido (evita carreras y estados colgados).
+      if (!refreshInFlight) {
+        refreshInFlight = authApi
+          .refresh({ refreshToken })
+          .pipe(
+            shareReplay({ bufferSize: 1, refCount: false }),
+            finalize(() => {
+              refreshInFlight = null;
+            }),
+          );
+      }
+
+      return refreshInFlight.pipe(
         switchMap(() => {
           const newAccess = session.getAccessToken();
           const retried = req.clone({
@@ -69,6 +102,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         }),
         catchError((refreshErr) => {
           session.clear();
+          const now = Date.now();
+          if (now - lastSessionExpiredShownAt > 1500) {
+            lastSessionExpiredShownAt = now;
+            void alerts.info(
+              'Tu sesión expiró o se inició sesión en otro lugar. Vuelve a iniciar sesión.',
+              'Sesión finalizada',
+            );
+          }
           void router.navigate(['/login']);
           return throwError(() => refreshErr);
         }),
