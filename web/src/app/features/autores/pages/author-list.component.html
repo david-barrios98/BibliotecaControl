@@ -11,13 +11,9 @@
   @if (loading()) {
     <app-loading-block label="Cargando autores…" />
   } @else {
-    @if (errorMessage(); as err) {
-      <app-error-alert
-        [message]="err"
-        heading="No se pudo cargar el listado"
-        [showRetry]="true"
-        (retry)="loadPage()"
-      />
+    @if (listLoadFailed()) {
+      <p class="al__intro">No se pudo cargar el listado.</p>
+      <button type="button" class="al__btn al__btn--primary" (click)="loadPage()">Reintentar</button>
     } @else if (isEmpty()) {
       <app-empty-state
         title="Sin autores"

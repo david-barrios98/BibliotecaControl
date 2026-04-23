@@ -5,7 +5,7 @@ import { AuthorApiService } from '../services/author-api.service';
 import type { AuthorRequestDto } from '../models/author.dto';
 import { parseHttpError } from '@core/http/api-response-helpers';
 import { LoadingBlockComponent } from '@shared/ui/loading-block.component';
-import { ErrorAlertComponent } from '@shared/ui/error-alert.component';
+import { AlertService } from '@core/notifications/alert.service';
 import { ControlValidationMessageComponent } from '@shared/validation/control-validation-message.component';
 import { authorFieldMessages } from './author-form.validation';
 import { dateInputToIsoUtcNoon, isoToDateInputValue } from '@core/utils/date-input';
@@ -18,7 +18,6 @@ import { BackLinkComponent } from '@shared/ui/back-link.component';
     ReactiveFormsModule,
     RouterLink,
     LoadingBlockComponent,
-    ErrorAlertComponent,
     ControlValidationMessageComponent,
     BackLinkComponent,
   ],
@@ -30,13 +29,12 @@ export class AuthorFormComponent implements OnInit {
   private readonly api = inject(AuthorApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly alerts = inject(AlertService);
 
   protected readonly loading = signal(false);
   protected readonly saving = signal(false);
-  /** Error al cargar el autor en modo edición. */
-  protected readonly loadError = signal<string | null>(null);
-  /** Error al crear o actualizar. */
-  protected readonly submitError = signal<string | null>(null);
+  /** Modo edición: el usuario cerró el diálogo de error sin reintentar. */
+  protected readonly editLoadFailed = signal(false);
   protected readonly isEdit = signal(false);
 
   /** Overrides de mensajes por campo (registro/edición autor). */
@@ -63,7 +61,7 @@ export class AuthorFormComponent implements OnInit {
 
   private loadAuthor(id: number): void {
     this.loading.set(true);
-    this.loadError.set(null);
+    this.editLoadFailed.set(false);
     this.api.getById(id).subscribe({
       next: (a) => {
         this.form.patchValue({
@@ -77,15 +75,17 @@ export class AuthorFormComponent implements OnInit {
       },
       error: (err: unknown) => {
         this.loading.set(false);
-        this.loadError.set(parseHttpError(err));
+        void this.handleLoadAuthorError(id, parseHttpError(err));
       },
     });
   }
 
-  /** Reintenta la carga inicial solo en modo edición. */
-  protected retryInitialLoad(): void {
-    if (this.authorId != null) {
-      this.loadAuthor(this.authorId);
+  private async handleLoadAuthorError(id: number, message: string): Promise<void> {
+    const retry = await this.alerts.errorWithRetry(message, 'No se pudieron cargar los datos');
+    if (retry) {
+      this.loadAuthor(id);
+    } else {
+      this.editLoadFailed.set(true);
     }
   }
 
@@ -104,14 +104,13 @@ export class AuthorFormComponent implements OnInit {
     };
 
     this.saving.set(true);
-    this.submitError.set(null);
 
     if (this.isEdit() && this.authorId != null) {
       this.api.update(this.authorId, payload).subscribe({
         next: () => void this.router.navigate(['/autores', this.authorId]),
         error: (err: unknown) => {
           this.saving.set(false);
-          this.submitError.set(parseHttpError(err));
+          void this.alerts.error(parseHttpError(err), 'No se pudo guardar');
         },
         complete: () => this.saving.set(false),
       });
@@ -120,7 +119,7 @@ export class AuthorFormComponent implements OnInit {
         next: (created) => void this.router.navigate(['/autores', created.id]),
         error: (err: unknown) => {
           this.saving.set(false);
-          this.submitError.set(parseHttpError(err));
+          void this.alerts.error(parseHttpError(err), 'No se pudo guardar');
         },
         complete: () => this.saving.set(false),
       });

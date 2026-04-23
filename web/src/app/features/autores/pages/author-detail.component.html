@@ -6,20 +6,15 @@
     <span class="ad__crumb-current">Detalle</span>
   </nav>
 
-  @if (deleteError(); as delErr) {
-    <app-error-alert [message]="delErr" heading="No se pudo eliminar" [showRetry]="false" />
-  }
-
   @if (loading()) {
     <app-loading-block label="Cargando autor…" />
   } @else {
-    @if (loadError(); as loadErr) {
-      <app-error-alert
-        [message]="loadErr"
-        [heading]="invalidId() ? null : 'No se pudo cargar el autor'"
-        [showRetry]="!invalidId()"
-        (retry)="retryLoad()"
-      />
+    @if (invalidId()) {
+      <p class="ad__intro">Identificador no válido.</p>
+      <a routerLink="/autores" class="ad__btn ad__btn--ghost">Volver al listado</a>
+    } @else if (loadFailed()) {
+      <p class="ad__intro">No se pudo cargar el autor.</p>
+      <button type="button" class="ad__btn ad__btn--primary" (click)="retryLoad()">Reintentar</button>
     } @else {
       @if (author(); as a) {
         <header class="ad__header">
