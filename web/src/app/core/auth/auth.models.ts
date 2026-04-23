@@ -3,6 +3,10 @@ export interface LoginRequestDto {
   password: string;
 }
 
+export interface RefreshRequestDto {
+  refreshToken: string;
+}
+
 /**
  * Shape esperado por backend (típico): { accessToken, refreshToken, ... }.
  * Se dejan campos opcionales para tolerar cambios menores sin romper compilación.
@@ -13,4 +17,6 @@ export interface LoginResponseDto {
   expiresInSeconds?: number | null;
   tokenType?: string | null;
 }
+
+export type RefreshResponseDto = LoginResponseDto;
 

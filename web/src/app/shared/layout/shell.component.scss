@@ -44,6 +44,13 @@
   border-radius: 8px;
 }
 
+.shell__link--btn {
+  background: transparent;
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
 .shell__link:hover {
   color: var(--bc-color-accent);
   background: color-mix(in srgb, var(--bc-color-accent) 8%, transparent);

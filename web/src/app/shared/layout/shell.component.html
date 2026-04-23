@@ -14,6 +14,11 @@
       <a routerLink="/libros" routerLinkActive="shell__link--active" class="shell__link">Libros</a>
       <a routerLink="/prestamos" routerLinkActive="shell__link--active" class="shell__link">Préstamos</a>
       <a routerLink="/reportes" routerLinkActive="shell__link--active" class="shell__link">Reportes</a>
+      @if (isLoggedIn()) {
+        <button type="button" class="shell__link shell__link--btn" (click)="logout()">Cerrar sesión</button>
+      } @else {
+        <a routerLink="/login" routerLinkActive="shell__link--active" class="shell__link">Login</a>
+      }
     </nav>
   </header>
   <main class="shell__main" id="main-content">
