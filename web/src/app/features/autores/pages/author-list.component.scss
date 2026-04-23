@@ -7,6 +7,19 @@
   margin-bottom: 1.25rem;
 }
 
+@media (max-width: 520px) {
+  .al__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .al__header .al__btn--primary {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+}
+
 .al__title {
   margin: 0 0 0.35rem;
   font-size: 1.5rem;

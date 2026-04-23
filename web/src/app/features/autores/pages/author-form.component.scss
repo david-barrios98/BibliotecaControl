@@ -33,6 +33,12 @@
   max-width: 40rem;
 }
 
+@media (max-width: 480px) {
+  .af__form {
+    max-width: 100%;
+  }
+}
+
 .af__grid {
   display: grid;
   gap: 1rem;
@@ -129,4 +135,16 @@
 
 .af__btn--ghost:hover {
   background: color-mix(in srgb, var(--bc-color-bg) 80%, transparent);
+}
+
+@media (max-width: 520px) {
+  .af__actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .af__actions .af__btn {
+    min-height: 44px;
+    justify-content: center;
+  }
 }

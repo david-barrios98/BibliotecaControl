@@ -1,4 +1,5 @@
 <section class="hub" aria-labelledby="hub-main-title">
+  <app-back-link [link]="['/']" label="Inicio" />
   <nav class="hub__crumb" aria-label="Migas de pan">
     <a routerLink="/" class="hub__crumb-link">Inicio</a>
     <span class="hub__crumb-sep" aria-hidden="true">/</span>
@@ -10,4 +11,16 @@
     <p class="hub__intro">{{ hub.intro }}</p>
   </header>
 
+  <ul class="hub__actions">
+    @for (action of hub.actions; track action.label) {
+      <li class="hub__action">
+        <span class="hub__action-label">{{ action.label }}</span>
+        <span class="hub__action-detail">{{ action.detail }}</span>
+      </li>
+    }
+  </ul>
+
+  <p class="hub__footer-note">
+    Las llamadas usarán el prefijo <code>{{ env.apiVersionPath }}</code> sobre la URL base configurada (respuestas en <code>ApiResponse&lt;T&gt;</code>).
+  </p>
 </section>

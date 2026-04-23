@@ -11,7 +11,7 @@ export const authorFieldMessages: Record<string, FieldValidationOverrides> = {
     maxlength: (e) => `Los apellidos admiten como máximo ${e.requiredLength} caracteres.`,
   },
   birthDate: {
-    required: 'Seleccione la fecha y hora de nacimiento.',
+    required: 'Seleccione la fecha de nacimiento (día, mes y año).',
   },
   country: {
     required: 'Indique el país.',

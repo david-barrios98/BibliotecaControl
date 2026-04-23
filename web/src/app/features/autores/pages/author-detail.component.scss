@@ -42,6 +42,23 @@
   gap: 0.5rem;
 }
 
+@media (max-width: 520px) {
+  .ad__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ad__actions {
+    width: 100%;
+  }
+
+  .ad__actions .ad__btn {
+    flex: 1 1 auto;
+    justify-content: center;
+    min-height: 44px;
+  }
+}
+
 .ad__btn {
   display: inline-flex;
   align-items: center;

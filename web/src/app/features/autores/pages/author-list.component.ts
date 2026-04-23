@@ -6,11 +6,13 @@ import { parseHttpError } from '@core/http/api-response-helpers';
 import { LoadingBlockComponent } from '@shared/ui/loading-block.component';
 import { EmptyStateComponent } from '@shared/ui/empty-state.component';
 import { ErrorAlertComponent } from '@shared/ui/error-alert.component';
+import { BackLinkComponent } from '@shared/ui/back-link.component';
+import { formatIsoDateDisplay } from '@core/utils/date-input';
 
 @Component({
   selector: 'app-author-list',
   standalone: true,
-  imports: [RouterLink, LoadingBlockComponent, EmptyStateComponent, ErrorAlertComponent],
+  imports: [RouterLink, LoadingBlockComponent, EmptyStateComponent, ErrorAlertComponent, BackLinkComponent],
   templateUrl: './author-list.component.html',
   styleUrl: './author-list.component.scss',
 })
@@ -76,17 +78,8 @@ export class AuthorListComponent implements OnInit {
     return [a.name, a.lastName].filter(Boolean).join(' ') || '(sin nombre)';
   }
 
-  protected formatDate(iso: string | null | undefined): string {
-    if (!iso) return '—';
-    try {
-      return new Date(iso).toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
-    } catch {
-      return iso;
-    }
+  protected formatBirthColumn(iso: string | null | undefined): string {
+    return formatIsoDateDisplay(iso, 'short');
   }
 
   /** Estado vacío real (sin error y sin filas). */

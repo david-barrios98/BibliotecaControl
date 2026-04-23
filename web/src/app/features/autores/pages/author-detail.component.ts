@@ -5,11 +5,13 @@ import type { AuthorResponseDto } from '../models/author.dto';
 import { parseHttpError } from '@core/http/api-response-helpers';
 import { LoadingBlockComponent } from '@shared/ui/loading-block.component';
 import { ErrorAlertComponent } from '@shared/ui/error-alert.component';
+import { BackLinkComponent } from '@shared/ui/back-link.component';
+import { formatIsoDateDisplay } from '@core/utils/date-input';
 
 @Component({
   selector: 'app-author-detail',
   standalone: true,
-  imports: [RouterLink, LoadingBlockComponent, ErrorAlertComponent],
+  imports: [RouterLink, LoadingBlockComponent, ErrorAlertComponent, BackLinkComponent],
   templateUrl: './author-detail.component.html',
   styleUrl: './author-detail.component.scss',
 })
@@ -72,19 +74,8 @@ export class AuthorDetailComponent implements OnInit {
     return [a.name, a.lastName].filter(Boolean).join(' ') || '(sin nombre)';
   }
 
-  protected formatDate(iso: string | null | undefined): string {
-    if (!iso) return '—';
-    try {
-      return new Date(iso).toLocaleString(undefined, {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } catch {
-      return iso;
-    }
+  protected formatBirthDate(iso: string | null | undefined): string {
+    return formatIsoDateDisplay(iso, 'long');
   }
 
   protected confirmDelete(): void {

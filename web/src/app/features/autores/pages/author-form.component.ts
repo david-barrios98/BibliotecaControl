@@ -8,6 +8,8 @@ import { LoadingBlockComponent } from '@shared/ui/loading-block.component';
 import { ErrorAlertComponent } from '@shared/ui/error-alert.component';
 import { ControlValidationMessageComponent } from '@shared/validation/control-validation-message.component';
 import { authorFieldMessages } from './author-form.validation';
+import { dateInputToIsoUtcNoon, isoToDateInputValue } from '@core/utils/date-input';
+import { BackLinkComponent } from '@shared/ui/back-link.component';
 
 @Component({
   selector: 'app-author-form',
@@ -18,6 +20,7 @@ import { authorFieldMessages } from './author-form.validation';
     LoadingBlockComponent,
     ErrorAlertComponent,
     ControlValidationMessageComponent,
+    BackLinkComponent,
   ],
   templateUrl: './author-form.component.html',
   styleUrl: './author-form.component.scss',
@@ -66,7 +69,7 @@ export class AuthorFormComponent implements OnInit {
         this.form.patchValue({
           name: a.name ?? '',
           lastName: a.lastName ?? '',
-          birthDate: this.toDatetimeLocal(a.birthDate),
+          birthDate: isoToDateInputValue(a.birthDate),
           country: a.country ?? '',
           biography: a.biography ?? '',
         });
@@ -95,7 +98,7 @@ export class AuthorFormComponent implements OnInit {
     const payload: AuthorRequestDto = {
       name: v.name.trim(),
       lastName: v.lastName.trim(),
-      birthDate: new Date(v.birthDate).toISOString(),
+      birthDate: dateInputToIsoUtcNoon(v.birthDate),
       country: v.country.trim(),
       biography: v.biography.trim() ? v.biography.trim() : null,
     };
@@ -124,12 +127,15 @@ export class AuthorFormComponent implements OnInit {
     }
   }
 
-  /** Convierte ISO del API a valor de `datetime-local`. */
-  private toDatetimeLocal(iso: string): string {
-    if (!iso) return '';
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return '';
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  /** Destino del enlace «volver»: lista o ficha si está editando. */
+  protected backLink(): string[] {
+    if (this.isEdit() && this.authorId != null) {
+      return ['/autores', String(this.authorId)];
+    }
+    return ['/autores'];
+  }
+
+  protected backLabel(): string {
+    return this.isEdit() ? 'Ficha del autor' : 'Lista de autores';
   }
 }

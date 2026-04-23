@@ -1,4 +1,5 @@
 <section class="af" aria-labelledby="af-title">
+  <app-back-link [link]="backLink()" [label]="backLabel()" />
   <nav class="af__crumb" aria-label="Migas de pan">
     <a routerLink="/autores" class="af__crumb-link">Autores</a>
     <span class="af__crumb-sep" aria-hidden="true">/</span>
@@ -37,7 +38,7 @@
         </div>
         <div class="af__field">
           <label for="af-birth">Fecha de nacimiento</label>
-          <input id="af-birth" type="datetime-local" formControlName="birthDate" />
+          <input id="af-birth" type="date" formControlName="birthDate" autocomplete="bday" />
           <app-control-validation-message [control]="form.controls.birthDate" [overrides]="authorFieldMessages['birthDate']" />
         </div>
         <div class="af__field">

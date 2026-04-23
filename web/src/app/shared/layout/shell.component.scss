@@ -10,7 +10,7 @@
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  padding: 0.875rem 1.5rem;
+  padding: clamp(0.65rem, 2.5vw, 0.875rem) clamp(0.85rem, 4vw, 1.5rem);
   background: var(--bc-color-surface);
   border-bottom: 1px solid var(--bc-color-border);
   box-shadow: var(--bc-shadow);
@@ -59,6 +59,13 @@
   width: 100%;
   max-width: 72rem;
   margin-inline: auto;
-  padding: 1.75rem 1.5rem 3rem;
+  padding: clamp(1rem, 4vw, 1.75rem) clamp(0.85rem, 4vw, 1.5rem) clamp(2rem, 6vw, 3rem);
   box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+  .shell__nav {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }
