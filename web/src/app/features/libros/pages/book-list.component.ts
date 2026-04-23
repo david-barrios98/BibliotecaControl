@@ -8,11 +8,12 @@ import { parseHttpError } from '@core/http/api-response-helpers';
 import { BookApiService } from '../services/book-api.service';
 import type { BookResponseDto } from '../models/book.dto';
 import { formatIsoDateDisplay } from '@core/utils/date-input';
+import { CoverThumbComponent } from '@shared/ui/cover-thumb.component';
 
 @Component({
   selector: 'app-book-list',
   standalone: true,
-  imports: [RouterLink, LoadingBlockComponent, EmptyStateComponent, BackLinkComponent],
+  imports: [RouterLink, LoadingBlockComponent, EmptyStateComponent, BackLinkComponent, CoverThumbComponent],
   templateUrl: './book-list.component.html',
   styleUrl: './book-list.component.scss',
 })

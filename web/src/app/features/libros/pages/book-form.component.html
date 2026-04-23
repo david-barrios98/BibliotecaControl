@@ -45,14 +45,17 @@
 
           <div class="bf__field">
             <label for="bf-gender">Género <span class="bf__req" aria-hidden="true">*</span></label>
-            <select id="bf-gender" formControlName="gender" [disabled]="loadingGenders()">
-              <option value="" disabled>Selecciona un género…</option>
-              @for (g of genders(); track genderOptionValue(g)) {
-                <option [value]="genderOptionValue(g)">{{ g.name }}</option>
+            <select id="bf-gender" formControlName="genderId" [disabled]="loadingGenders()">
+              <option [ngValue]="0" disabled>Selecciona un género…</option>
+              @for (g of gendersWithId(); track g.id) {
+                <option [ngValue]="g.id">{{ g.name }}</option>
               }
             </select>
             @if (loadingGenders()) {
               <small class="bf__hint">Cargando géneros…</small>
+            }
+            @if (!loadingGenders() && gendersWithId().length === 0) {
+              <small class="bf__hint">No hay géneros con id en el catálogo; revisa GET Gender/List.</small>
             }
           </div>
 
@@ -83,7 +86,7 @@
               <input type="file" accept="image/*" (change)="onCoverSelected($event)" />
               <span class="bf__btn bf__btn--ghost">Elegir imagen…</span>
             </label>
-            <button type="button" class="bf__btn bf__btn--ghost" (click)="clearCover()">Quitar</button>
+            <button type="button" class="bf__btn bf__btn--ghost" (click)="clearCover()">Quitar selección</button>
             <p class="bf__hint">Si no subes archivo en edición, se conserva la portada actual.</p>
           </div>
         </div>
@@ -92,13 +95,13 @@
       <aside class="bf__card bf__card--side" aria-label="Ejemplares">
         <h2 class="bf__card-title">Ejemplares</h2>
         <p class="bf__hint">
-          Diseñado para trabajar en esta misma vista. Al crear el libro se habilita el módulo de ejemplares.
+          Al crear el libro, el backend genera al menos un ejemplar (correlativo #). Puedes editar el código, agregar más o dar de baja ejemplares (salvo restricciones del servidor).
         </p>
 
         @if (!canManageCopies()) {
           <div class="bf__callout">
             <strong>Primero guarda el libro.</strong>
-            <p>Después podrás crear y administrar ejemplares asociados al libro.</p>
+            <p>Después podrás agregar ejemplares con POST <code>/Book/&#123;id&#125;/Copies</code>.</p>
           </div>
         }
 
@@ -106,32 +109,57 @@
           <div class="bf__copy-add">
             <input
               type="text"
-              placeholder="Código de ejemplar (ej. BC-0001)"
+              placeholder="Código opcional (ej. BC-0001); vacío = solo correlativo"
               [value]="newCopyCode()"
               (input)="onNewCopyInput($event)"
-              [disabled]="!canManageCopies()"
+              [disabled]="!canManageCopies() || addingCopy()"
             />
-            <button type="button" class="bf__btn bf__btn--primary" (click)="addCopy()" [disabled]="!canManageCopies()">
-              Agregar
+            <button
+              type="button"
+              class="bf__btn bf__btn--primary"
+              (click)="addCopy()"
+              [disabled]="!canManageCopies() || addingCopy()"
+            >
+              {{ addingCopy() ? 'Agregando…' : 'Agregar' }}
             </button>
           </div>
 
           @if (copies().length === 0) {
-            <p class="bf__hint">Aún no has agregado ejemplares en esta sesión.</p>
+            <p class="bf__hint">No hay ejemplares en la respuesta del servidor.</p>
           } @else {
             <ul class="bf__copy-list">
               @for (c of copies(); track c.id) {
                 <li class="bf__copy-item">
-                  <span class="bf__copy-code">{{ c.code }}</span>
-                  <span class="bf__pill">{{ c.status }}</span>
-                  <button
-                    type="button"
-                    class="bf__btn bf__btn--ghost"
-                    (click)="removeCopy(c.id)"
-                    [disabled]="!canManageCopies()"
-                  >
-                    Quitar
-                  </button>
+                  <div class="bf__copy-fields">
+                    <span class="bf__pill" title="Correlativo interno">#{{ c.copyNumber }}</span>
+                    <input
+                      type="text"
+                      class="bf__copy-input"
+                      [attr.aria-label]="'Código del ejemplar #' + c.copyNumber"
+                      placeholder="Código opcional; vacío = solo correlativo"
+                      [value]="copyDraft(c.id)"
+                      (input)="onCopyDraftInput(c.id, $event)"
+                      [disabled]="!canManageCopies() || rowCopyBusy(c.id)"
+                    />
+                  </div>
+                  <div class="bf__copy-actions">
+                    <button
+                      type="button"
+                      class="bf__btn bf__btn--ghost bf__btn--sm"
+                      (click)="saveCopyCode(c.id)"
+                      [disabled]="!canManageCopies() || rowCopyBusy(c.id) || !copyCodeChanged(c)"
+                    >
+                      {{ updatingCopyId() === c.id ? 'Guardando…' : 'Guardar' }}
+                    </button>
+                    <button
+                      type="button"
+                      class="bf__btn bf__btn--danger bf__btn--sm"
+                      (click)="removeCopy(c.id)"
+                      [disabled]="!canManageCopies() || rowCopyBusy(c.id)"
+                    >
+                      {{ deletingCopyId() === c.id ? 'Eliminando…' : 'Eliminar' }}
+                    </button>
+                  </div>
                 </li>
               }
             </ul>
@@ -140,10 +168,9 @@
 
         <div class="bf__divider"></div>
         <p class="bf__hint">
-          Nota: la persistencia de ejemplares depende de endpoints del backend (los conecto cuando me compartas esas rutas/DTOs).
+          Los cambios se reflejan tras <code>GET Book/&#123;id&#125;</code>. Código duplicado o eliminar el único activo / con préstamo devuelve error del servidor.
         </p>
       </aside>
     </div>
   }
 </section>
-

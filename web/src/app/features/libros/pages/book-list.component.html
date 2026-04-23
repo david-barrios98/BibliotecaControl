@@ -46,11 +46,7 @@
         @for (b of books(); track b.id) {
           <article class="bl__card">
             <div class="bl__cover" [class.bl__cover--empty]="!hasCover(b)">
-              @if (hasCover(b)) {
-                <img [src]="b.coverUrl!" alt="" loading="lazy" />
-              } @else {
-                <span class="bl__cover-ph">Sin portada</span>
-              }
+              <app-cover-thumb [url]="b.coverUrl" />
             </div>
             <div class="bl__meta">
               <h2 class="bl__card-title">{{ b.title }}</h2>

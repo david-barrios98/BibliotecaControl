@@ -63,6 +63,22 @@
   background: color-mix(in srgb, var(--bc-color-accent) 8%, transparent);
 }
 
+.bf__btn--sm {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.8125rem;
+  border-radius: 10px;
+}
+
+.bf__btn--danger {
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--bc-color-danger) 40%, var(--bc-color-border));
+  color: var(--bc-color-danger);
+}
+
+.bf__btn--danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--bc-color-danger) 10%, transparent);
+}
+
 .bf__layout {
   display: grid;
   grid-template-columns: 1.6fr 1fr;
@@ -242,9 +258,8 @@
 }
 
 .bf__copy-item {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
   gap: 0.5rem;
   padding: 0.55rem 0.65rem;
   border-radius: 12px;
@@ -252,9 +267,28 @@
   background: color-mix(in srgb, var(--bc-color-bg) 45%, var(--bc-color-surface));
 }
 
-.bf__copy-code {
-  font-weight: 700;
-  font-size: 0.9rem;
+.bf__copy-fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.bf__copy-input {
+  min-width: 0;
+  padding: 0.45rem 0.55rem;
+  border-radius: 10px;
+  border: 1px solid var(--bc-color-border);
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+.bf__copy-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
 }
 
 .bf__pill {

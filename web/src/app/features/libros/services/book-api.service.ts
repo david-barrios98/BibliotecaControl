@@ -5,13 +5,20 @@ import { apiRootUrl, ENVIRONMENT } from '@core/config/environment.token';
 import type { ApiResponse } from '@core/models/api-response';
 import type { PagedResult } from '@core/models/paged-result';
 import { parseHttpError, unwrapApiResponse } from '@core/http/api-response-helpers';
-import type { BookListQuery, BookResponseDto } from '../models/book.dto';
+import type {
+  AddBookCopyRequestDto,
+  BookCopyResponseDto,
+  BookDetailResponseDto,
+  BookListQuery,
+  BookResponseDto,
+  UpdateBookCopyRequestDto,
+} from '../models/book.dto';
 
 export interface BookUpsertPayload {
   title: string;
   numberOfPages: number;
   publishedDate: string; // ISO date-time
-  gender: string;
+  genderId: number;
   authorId: number;
   coverImage?: File | null;
 }
@@ -39,8 +46,11 @@ export class BookApiService {
     );
   }
 
-  getById(id: number): Observable<BookResponseDto> {
-    return this.http.get<ApiResponse<BookResponseDto>>(`${this.bookBase}/${id}`).pipe(map((res) => unwrapApiResponse(res)));
+  /** Detalle con ejemplares (`copies`). */
+  getById(id: number): Observable<BookDetailResponseDto> {
+    return this.http.get<ApiResponse<BookDetailResponseDto>>(`${this.bookBase}/${id}`).pipe(
+      map((res) => unwrapApiResponse(res)),
+    );
   }
 
   create(body: BookUpsertPayload): Observable<BookResponseDto> {
@@ -65,12 +75,41 @@ export class BookApiService {
     );
   }
 
+  /** POST `/Book/{id}/Copies` — body JSON opcional `{ copyCode }`. */
+  addCopy(bookId: number, body: AddBookCopyRequestDto): Observable<void> {
+    const payload =
+      body.copyCode != null && String(body.copyCode).trim() !== ''
+        ? { copyCode: String(body.copyCode).trim() }
+        : {};
+    return this.http.post<ApiResponse<unknown>>(`${this.bookBase}/${bookId}/Copies`, payload).pipe(
+      map((res) => {
+        unwrapApiResponse(res);
+      }),
+    );
+  }
+
+  /** PUT `/Book/{id}/Copies/{copyId}` — actualiza código; vacío/null lo quita. **409** si duplicado. */
+  updateCopy(bookId: number, copyId: number, body: UpdateBookCopyRequestDto): Observable<BookCopyResponseDto> {
+    return this.http
+      .put<ApiResponse<BookCopyResponseDto>>(`${this.bookBase}/${bookId}/Copies/${copyId}`, body)
+      .pipe(map((res) => unwrapApiResponse(res)));
+  }
+
+  /** DELETE `/Book/{id}/Copies/{copyId}` — baja lógica. **409** si es el único activo o hay préstamo activo. */
+  deleteCopy(bookId: number, copyId: number): Observable<void> {
+    return this.http.delete<ApiResponse<unknown>>(`${this.bookBase}/${bookId}/Copies/${copyId}`).pipe(
+      map((res) => {
+        unwrapApiResponse(res);
+      }),
+    );
+  }
+
   private toFormData(v: BookUpsertPayload): FormData {
     const fd = new FormData();
     fd.set('Title', v.title);
     fd.set('NumberOfPages', String(v.numberOfPages));
     fd.set('PublishedDate', v.publishedDate);
-    fd.set('Gender', v.gender);
+    fd.set('GenderId', String(v.genderId));
     fd.set('AuthorId', String(v.authorId));
     if (v.coverImage) {
       fd.set('CoverImage', v.coverImage);
@@ -91,4 +130,3 @@ export class BookApiService {
     return throwError(() => new Error(parseHttpError(err)));
   }
 }
-
