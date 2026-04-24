@@ -22,6 +22,8 @@ export class LoanApiService {
     const st = (q.status ?? '').trim();
     if (st) params = params.set('status', st);
     if (q.bookId != null && q.bookId > 0) params = params.set('bookId', String(q.bookId));
+    const term = (q.searchTerm ?? '').trim();
+    if (term) params = params.set('searchTerm', term);
 
     return this.http.get<ApiResponse<PagedResult<LoanResponseDto>>>(`${this.loanBase}/List`, { params }).pipe(
       map((res) => normalizePagedLoanResult(unwrapApiResponse(res))),

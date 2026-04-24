@@ -4,6 +4,8 @@ export interface AuthorBookReportDto {
   /** Nombre para UI (ej. "Ada Lovelace"). */
   authorName: string;
   bookCount: number;
+  /** Cantidad de ejemplares activos (cuando el backend lo envía). */
+  copyCount?: number | null;
   totalPages?: number | null;
   avgPages?: number | null;
 }

@@ -15,6 +15,8 @@ export interface LoanListQuery {
   /** Ej.: `Active`, `Returned` — depende del API; omitir para todos. */
   status?: string | null;
   bookId?: number | null;
+  /** Filtro libre (si el backend lo soporta): persona/libro/etc. */
+  searchTerm?: string | null;
 }
 
 /** Ítem de listado/detalle (`LoanResponseDto`). Campos opcionales por variaciones del API. */

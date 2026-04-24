@@ -48,6 +48,16 @@ export function normalizeAuthorBookReportDto(raw: unknown): AuthorBookReportDto 
         'value',
         'Value',
       ) ?? 0,
+    copyCount:
+      optNum(
+        r,
+        'copyCount',
+        'CopyCount',
+        'copiesCount',
+        'CopiesCount',
+        'bookCopyCount',
+        'BookCopyCount',
+      ) ?? null,
     totalPages: optNum(r, 'totalPages', 'TotalPages'),
     avgPages: optNum(r, 'avgPages', 'AvgPages'),
   };
