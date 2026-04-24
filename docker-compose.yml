@@ -1,0 +1,15 @@
+services:
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    image: biblioteca-control-web:local
+    ports:
+      - "8080:80"
+    environment:
+      # Cambia esto a donde viva tu API (docker host, VM, cloud, etc.)
+      # Ejemplos:
+      # - http://host.docker.internal:7198
+      # - http://api:8080
+      API_UPSTREAM: "http://host.docker.internal:7198"
+
