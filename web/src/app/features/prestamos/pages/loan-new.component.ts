@@ -14,6 +14,9 @@ import { PersonApiService } from '../../personas/services/person-api.service';
 import type { PersonResponseDto } from '../../personas/models/person.dto';
 import { BookApiService } from '../../libros/services/book-api.service';
 import type { BookDetailResponseDto } from '../../libros/models/book.dto';
+import { AuthorApiService } from '../../autores/services/author-api.service';
+import type { AuthorResponseDto } from '../../autores/models/author.dto';
+import { GenderApiService, type GenderLookupDto } from '../../libros/services/gender-api.service';
 import { LoanApiService } from '../services/loan-api.service';
 import { parseHttpError } from '@core/http/api-response-helpers';
 import { dateInputToIsoUtcNoon, formatIsoDateDisplay } from '@core/utils/date-input';
@@ -54,6 +57,8 @@ export class LoanNewComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly personApi = inject(PersonApiService);
   private readonly bookApi = inject(BookApiService);
+  private readonly authorApi = inject(AuthorApiService);
+  private readonly genderApi = inject(GenderApiService);
   private readonly loanApi = inject(LoanApiService);
   private readonly router = inject(Router);
   private readonly alerts = inject(AlertService);
@@ -68,6 +73,8 @@ export class LoanNewComponent implements OnInit {
   protected readonly books = signal<{ id: number; title: string }[]>([]);
   protected readonly selected = signal<BookDetailResponseDto[]>([]);
   protected readonly personCard = signal<PersonResponseDto | null>(null);
+  protected readonly authors = signal<AuthorResponseDto[]>([]);
+  protected readonly genders = signal<GenderLookupDto[]>([]);
 
   readonly form = this.fb.group(
     {
@@ -113,15 +120,21 @@ export class LoanNewComponent implements OnInit {
     forkJoin({
       persons: this.personApi.listAllForLookup(),
       books: this.bookApi.listAllForLookup(),
+      authors: this.authorApi.listAllForLookup(),
+      genders: this.genderApi.list(),
     }).subscribe({
-      next: ({ persons, books }) => {
+      next: ({ persons, books, authors, genders }) => {
         this.persons.set(persons);
         this.books.set(books.map((b) => ({ id: b.id, title: b.title })));
+        this.authors.set(authors);
+        this.genders.set(genders);
         this.catalogLoading.set(false);
       },
       error: (err: unknown) => {
         this.persons.set([]);
         this.books.set([]);
+        this.authors.set([]);
+        this.genders.set([]);
         this.catalogLoading.set(false);
         this.catalogError.set(true);
         void this.alerts.error(parseHttpError(err), 'No se pudo cargar el catálogo');
@@ -253,4 +266,132 @@ export class LoanNewComponent implements OnInit {
   }
 
   protected readonly formatDate = formatIsoDateDisplay;
+
+  protected async quickCreatePerson(): Promise<void> {
+    const r = await this.alerts.fire({
+      title: 'Registrar persona',
+      html: `
+        <div style="display:grid; gap: .6rem; text-align:left">
+          <label style="display:grid; gap:.25rem">
+            <span>Nombre *</span>
+            <input id="qc-firstName" class="swal2-input" style="width:100%; margin:0" />
+          </label>
+          <label style="display:grid; gap:.25rem">
+            <span>Apellido *</span>
+            <input id="qc-lastName" class="swal2-input" style="width:100%; margin:0" />
+          </label>
+          <label style="display:grid; gap:.25rem">
+            <span>Email</span>
+            <input id="qc-email" type="email" class="swal2-input" style="width:100%; margin:0" />
+          </label>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      cancelButtonText: 'Cancelar',
+      preConfirm: () => {
+        const firstName = (document.getElementById('qc-firstName') as HTMLInputElement | null)?.value?.trim() ?? '';
+        const lastName = (document.getElementById('qc-lastName') as HTMLInputElement | null)?.value?.trim() ?? '';
+        const email = (document.getElementById('qc-email') as HTMLInputElement | null)?.value?.trim() ?? '';
+        if (!firstName || !lastName) return null;
+        return { firstName, lastName, email: email || null };
+      },
+    });
+    if (!r.isConfirmed || !r.value) return;
+
+    this.personApi.create(r.value).subscribe({
+      next: (p) => {
+        this.persons.update((arr) => [p, ...arr]);
+        this.form.controls.personId.setValue(p.id);
+        this.alerts.toastSuccess('Persona registrada');
+      },
+      error: (err: unknown) => void this.alerts.error(parseHttpError(err), 'No se pudo registrar la persona'),
+    });
+  }
+
+  protected async quickCreateBook(): Promise<void> {
+    const authors = [...this.authors()].sort((a, b) => (a.name ?? '').localeCompare(b.name ?? '', 'es', { sensitivity: 'base' }));
+    const genders = [...this.genders()].filter((g) => typeof g.id === 'number');
+    const authorOpts = authors
+      .map((a) => `<option value="${a.id}">${[a.name, a.lastName].filter(Boolean).join(' ')}</option>`)
+      .join('');
+    const genderOpts = genders.map((g) => `<option value="${g.id}">${g.name}</option>`).join('');
+
+    const r = await this.alerts.fire({
+      title: 'Registrar libro',
+      html: `
+        <div style="display:grid; gap: .6rem; text-align:left">
+          <label style="display:grid; gap:.25rem">
+            <span>Título *</span>
+            <input id="qb-title" class="swal2-input" style="width:100%; margin:0" />
+          </label>
+          <label style="display:grid; gap:.25rem">
+            <span>Autor *</span>
+            <select id="qb-author" class="swal2-select" style="width:100%; margin:0; padding:.55rem .65rem; border-radius:12px">
+              <option value="">Seleccioná…</option>
+              ${authorOpts}
+            </select>
+          </label>
+          <label style="display:grid; gap:.25rem">
+            <span>Género *</span>
+            <select id="qb-gender" class="swal2-select" style="width:100%; margin:0; padding:.55rem .65rem; border-radius:12px">
+              <option value="">Seleccioná…</option>
+              ${genderOpts}
+            </select>
+          </label>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:.6rem">
+            <label style="display:grid; gap:.25rem">
+              <span>Páginas *</span>
+              <input id="qb-pages" type="number" min="1" value="100" class="swal2-input" style="width:100%; margin:0" />
+            </label>
+            <label style="display:grid; gap:.25rem">
+              <span>Publicado *</span>
+              <input id="qb-date" type="date" class="swal2-input" style="width:100%; margin:0" />
+            </label>
+          </div>
+          <small style="color:#5b6472">Se crea sin portada (podés editarla luego).</small>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      cancelButtonText: 'Cancelar',
+      didOpen: () => {
+        const d = new Date();
+        const pad = (n: number) => String(n).padStart(2, '0');
+        const today = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        const inp = document.getElementById('qb-date') as HTMLInputElement | null;
+        if (inp && !inp.value) inp.value = today;
+      },
+      preConfirm: () => {
+        const title = (document.getElementById('qb-title') as HTMLInputElement | null)?.value?.trim() ?? '';
+        const authorId = Number((document.getElementById('qb-author') as HTMLSelectElement | null)?.value ?? 0);
+        const genderId = Number((document.getElementById('qb-gender') as HTMLSelectElement | null)?.value ?? 0);
+        const pages = Number((document.getElementById('qb-pages') as HTMLInputElement | null)?.value ?? 0);
+        const pub = (document.getElementById('qb-date') as HTMLInputElement | null)?.value ?? '';
+        if (!title || !authorId || !genderId || !pages || !pub) return null;
+        return { title, authorId, genderId, numberOfPages: pages, publishedDate: dateInputToIsoUtcNoon(pub) };
+      },
+    });
+    if (!r.isConfirmed || !r.value) return;
+
+    this.bookApi.create(r.value).subscribe({
+      next: (b) => {
+        this.books.update((arr) => [{ id: b.id, title: b.title }, ...arr]);
+        this.bookPick.setValue(b.id);
+        void this.alerts.fire({
+          icon: 'success',
+          title: 'Libro registrado',
+          text: 'Se agregó al catálogo. ¿Querés agregarlo a la lista del préstamo?',
+          showCancelButton: true,
+          confirmButtonText: 'Agregar',
+          cancelButtonText: 'No, luego',
+        }).then((x) => {
+          if (x.isConfirmed) this.addSelectedBook();
+        });
+      },
+      error: (err: unknown) => void this.alerts.error(parseHttpError(err), 'No se pudo registrar el libro'),
+    });
+  }
 }

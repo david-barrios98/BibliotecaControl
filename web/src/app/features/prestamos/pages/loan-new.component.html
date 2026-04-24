@@ -48,9 +48,12 @@
             </div>
           } @else {
             <p class="ln__hint">
-              Si no está en el listado,
-              <a routerLink="/personas/nuevo" class="ln__inline-link">registrá la persona</a>
-              y volvé a esta pantalla.
+              ¿No la encontrás?
+              <button type="button" class="ln__inline-link ln__link-btn ln__cta" (click)="quickCreatePerson()">
+                <span class="ln__cta-ic ln__cta-ic--plus" aria-hidden="true"></span>
+                Registrar persona aquí
+              </button>
+              (sin salir del préstamo).
             </p>
           }
         </section>
@@ -81,6 +84,13 @@
           </div>
 
           <p class="ln__muted">Los libros agregados se verán abajo, con ejemplar y acciones.</p>
+          <p class="ln__hint">
+            ¿No está el libro en el catálogo?
+            <button type="button" class="ln__inline-link ln__link-btn ln__cta" (click)="quickCreateBook()">
+              <span class="ln__cta-ic ln__cta-ic--plus" aria-hidden="true"></span>
+              Registrar libro aquí
+            </button>
+          </p>
         </section>
       </div>
 
