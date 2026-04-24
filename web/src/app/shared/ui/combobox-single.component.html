@@ -1,0 +1,66 @@
+<div class="combo" [class.combo--open]="open()">
+  <label class="combo__label-wrap" [attr.for]="controlId">
+    <span class="combo__label-text">
+      {{ label }}
+      @if (requiredMark) {
+        <span class="combo__req" aria-hidden="true">*</span>
+      }
+    </span>
+    <div class="combo__field">
+      <input
+        [id]="controlId"
+        class="combo__input"
+        type="text"
+        [attr.aria-expanded]="open()"
+        [attr.aria-controls]="listboxId()"
+        [attr.aria-activedescendant]="activeDescendantId()"
+        [attr.aria-disabled]="disabled()"
+        role="combobox"
+        autocomplete="off"
+        [placeholder]="placeholder"
+        [disabled]="disabled()"
+        [value]="filterText()"
+        (input)="onInput($event)"
+        (focus)="onFocus()"
+        (blur)="onBlur()"
+        (keydown)="onKeydown($event)"
+      />
+      <button
+        type="button"
+        class="combo__toggle"
+        tabindex="-1"
+        [disabled]="disabled()"
+        [attr.aria-label]="open() ? 'Cerrar lista' : 'Abrir lista'"
+        (mousedown)="$event.preventDefault()"
+        (click)="toggleOpen($event)"
+      >
+        <span class="combo__chevron" aria-hidden="true"></span>
+      </button>
+    </div>
+  </label>
+
+  @if (open() && !disabled()) {
+    <ul
+      class="combo__list"
+      [id]="listboxId()"
+      role="listbox"
+      [attr.aria-label]="label ? label + ' — opciones' : 'Opciones'"
+    >
+      @if (filtered().length === 0) {
+        <li class="combo__empty" role="presentation">Sin coincidencias</li>
+      }
+      @for (item of filtered(); track item.id; let idx = $index) {
+        <li
+          [id]="optionId(idx)"
+          class="combo__option"
+          role="option"
+          [class.combo__option--highlight]="idx === highlighted()"
+          [attr.aria-selected]="valueId() === item.id"
+          (mousedown)="pick(item, $event)"
+        >
+          {{ labelFn(item) }}
+        </li>
+      }
+    </ul>
+  }
+</div>

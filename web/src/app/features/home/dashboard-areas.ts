@@ -53,11 +53,12 @@ export const DASHBOARD_AREAS: DashboardArea[] = [
     route: '/prestamos',
     badge: 'P',
     title: 'Préstamos',
-    summary: 'Alta de préstamos, seguimiento por estado o libro y devolución por id de préstamo.',
+    summary:
+      'Registrar préstamo por libro y persona con fechas de salida y devolución esperada; seguimiento y devoluciones.',
     options: [
-      { label: 'Registrar préstamo', hint: 'POST Loan — CreateLoanRequestDto (JSON), 200 ApiResponse' },
-      { label: 'Listado paginado', hint: 'GET Loan/List — status, bookId' },
-      { label: 'Devolución', hint: 'PUT Loan/{id}/return — id es el préstamo, no el libro' },
+      { label: 'Panel de préstamos', hint: 'Métricas, pestañas Activos / Devueltos / Todos y filtro por libro' },
+      { label: 'Nuevo préstamo', hint: 'POST Loan — bookId, personId, loanDate, dueDate' },
+      { label: 'Devolución', hint: 'PUT Loan/{id}/return — el id es el del préstamo' },
     ],
   },
   {

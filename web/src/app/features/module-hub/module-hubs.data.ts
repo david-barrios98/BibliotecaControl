@@ -69,7 +69,8 @@ export const PRESTAMOS_HUB: ModuleHubRouteData = {
   actions: [
     {
       label: 'Registrar préstamo',
-      detail: 'POST Loan — CreateLoanRequestDto (JSON); 409 si hay conflicto de negocio (ej. préstamo activo duplicado).',
+      detail:
+        'POST Loan — JSON: bookId, personId, loanDate, dueDate; 404 libro/persona inexistente o persona inactiva; 409 conflicto de negocio.',
     },
     {
       label: 'Listado paginado',

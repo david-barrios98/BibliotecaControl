@@ -1,0 +1,181 @@
+<section class="prest" aria-labelledby="prest-title">
+  <app-back-link [link]="['/']" label="Inicio" />
+  <header class="prest__header">
+    <div>
+      <h1 id="prest-title" class="prest__title">Préstamos</h1>
+      <p class="prest__intro">
+        Registro de salidas y devoluciones por ejemplar. Los totales respetan el filtro por libro cuando está activo.
+      </p>
+    </div>
+    <a routerLink="/prestamos/nuevo" class="prest__btn prest__btn--primary">Nuevo préstamo</a>
+  </header>
+
+  <div class="prest__kpi-row" aria-live="polite">
+    @if (statsLoading()) {
+      <div class="prest__kpi prest__kpi--muted">Cargando métricas…</div>
+    } @else {
+      <div class="prest__kpi">
+        <span class="prest__kpi-value">{{ statActive() }}</span>
+        <span class="prest__kpi-label">Activos</span>
+      </div>
+      <div class="prest__kpi">
+        <span class="prest__kpi-value">{{ statReturned() }}</span>
+        <span class="prest__kpi-label">Devueltos</span>
+      </div>
+      <div class="prest__kpi prest__kpi--total">
+        <span class="prest__kpi-value">{{ statTotal() }}</span>
+        <span class="prest__kpi-label">Total histórico</span>
+      </div>
+    }
+  </div>
+
+  <div class="prest__tabs" role="tablist" aria-label="Estado del préstamo">
+    <button
+      type="button"
+      role="tab"
+      class="prest__tab"
+      [class.prest__tab--active]="statusTab() === 'active'"
+      [attr.aria-selected]="statusTab() === 'active'"
+      (click)="setStatusTab('active')"
+    >
+      Activos
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="prest__tab"
+      [class.prest__tab--active]="statusTab() === 'returned'"
+      [attr.aria-selected]="statusTab() === 'returned'"
+      (click)="setStatusTab('returned')"
+    >
+      Devueltos
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="prest__tab"
+      [class.prest__tab--active]="statusTab() === 'all'"
+      [attr.aria-selected]="statusTab() === 'all'"
+      (click)="setStatusTab('all')"
+    >
+      Todos
+    </button>
+  </div>
+
+  <div class="prest__filters">
+    <label class="prest__field prest__field--grow">
+      <span class="prest__label">Filtrar por libro</span>
+      <select
+        class="prest__select"
+        [value]="bookIdFilter() ?? ''"
+        (change)="onBookFilterChange($event)"
+        [attr.aria-invalid]="booksLoadFailed()"
+      >
+        <option value="">Todos los libros</option>
+        @for (b of booksFilter(); track b.id) {
+          <option [value]="b.id">{{ b.title }}</option>
+        }
+      </select>
+      @if (booksLoadFailed()) {
+        <span class="prest__hint prest__hint--warn">No se cargó el catálogo de libros.</span>
+      }
+    </label>
+    @if (hasFilters()) {
+      <button type="button" class="prest__btn prest__btn--ghost" (click)="clearBookFilter()">Quitar filtro libro</button>
+    }
+  </div>
+
+  @if (loading()) {
+    <app-loading-block label="Cargando préstamos…" />
+  } @else {
+    @if (listLoadFailed()) {
+      <p class="prest__intro">No se pudo cargar el listado.</p>
+      <button type="button" class="prest__btn prest__btn--primary" (click)="loadPage()">Reintentar</button>
+    } @else if (isEmpty()) {
+      <app-empty-state
+        title="Sin préstamos en esta vista"
+        hint="Prueba otro estado o quita filtros. Para registrar una salida de material usá «Nuevo préstamo»."
+        actionLabel="Registrar préstamo"
+        [actionLink]="['/prestamos', 'nuevo']"
+      />
+    } @else {
+      <div class="prest__table-wrap">
+        <table class="prest__table">
+          <thead>
+            <tr>
+              <th scope="col">Estado</th>
+              <th scope="col">Persona</th>
+              <th scope="col">Libro</th>
+              <th scope="col">Ejemplar</th>
+              <th scope="col">Préstamo</th>
+              <th scope="col">Devolución</th>
+              <th scope="col" class="prest__col-actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of loans(); track row.id) {
+              <tr [class.prest__row--muted]="isLoanReturned(row)">
+                <td>
+                  @if (isLoanReturned(row)) {
+                    <span class="prest__badge prest__badge--done">Devuelto</span>
+                  } @else {
+                    <span class="prest__badge prest__badge--live">Activo</span>
+                  }
+                </td>
+                <td>{{ loanPersonLabel(row) }}</td>
+                <td>{{ (row.bookTitle ?? '—').trim() || '—' }}</td>
+                <td><code class="prest__code">{{ loanCopyLabel(row) }}</code></td>
+                <td>{{ formatDate(row.loanDate) }}</td>
+                <td>{{ formatDate(row.returnedAt ?? undefined) }}</td>
+                <td class="prest__col-actions">
+                  @if (!isLoanReturned(row)) {
+                    <button
+                      type="button"
+                      class="prest__btn prest__btn--ghost"
+                      (click)="onReturn(row)"
+                      [disabled]="returningId() === row.id"
+                    >
+                      {{ returningId() === row.id ? 'Registrando…' : 'Devolver' }}
+                    </button>
+                  } @else {
+                    <span class="prest__muted">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="prest__pager" aria-label="Paginación">
+        <div class="prest__pager-size">
+          <label for="prest-page-size">Por página</label>
+          <select id="prest-page-size" class="prest__select" (change)="onPageSizeChange($event)" [value]="pageSize()">
+            @for (s of pageSizeOptions; track s) {
+              <option [value]="s">{{ s }}</option>
+            }
+          </select>
+        </div>
+        <div class="prest__pager-nav">
+          <button type="button" class="prest__btn prest__btn--ghost" (click)="prevPage()" [disabled]="pageNumber() <= 1">
+            Anterior
+          </button>
+          <span class="prest__pager-info">
+            Página {{ pageNumber() }} @if (totalPages() > 0) {
+              de {{ totalPages() }}
+            }
+            · {{ totalRecords() }} registro(s)
+          </span>
+          <button
+            type="button"
+            class="prest__btn prest__btn--ghost"
+            (click)="nextPage()"
+            [disabled]="totalPages() === 0 || pageNumber() >= totalPages()"
+          >
+            Siguiente
+          </button>
+        </div>
+      </footer>
+    }
+  }
+</section>

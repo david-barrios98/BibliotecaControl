@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, map, of, throwError } from 'rxjs';
+import { Observable, catchError, forkJoin, map, of, switchMap, throwError } from 'rxjs';
 import { apiRootUrl, ENVIRONMENT } from '@core/config/environment.token';
 import type { ApiResponse } from '@core/models/api-response';
 import type { PagedResult } from '@core/models/paged-result';
@@ -49,6 +49,31 @@ export class BookApiService {
     return this.http.get<ApiResponse<PagedResult<BookResponseDto>>>(`${this.bookBase}/List`, { params }).pipe(
       map((res) => normalizePagedBookResult(unwrapApiResponse(res))),
       catchError((err: unknown) => this.catchEmptyList(err, q)),
+    );
+  }
+
+  /** Libros para combos (todas las páginas). */
+  listAllForLookup(pageSize = 50): Observable<BookResponseDto[]> {
+    const q: BookListQuery = { pageNumber: 1, pageSize, searchTerm: null };
+    return this.list(q).pipe(
+      switchMap((first) => {
+        const items = [...(first.items ?? [])];
+        const totalPages = first.totalPages ?? 1;
+        if (totalPages <= 1) {
+          return of(items);
+        }
+        const rest = Array.from({ length: totalPages - 1 }, (_, i) =>
+          this.list({ pageNumber: i + 2, pageSize, searchTerm: null }),
+        );
+        return forkJoin(rest).pipe(
+          map((pages) => {
+            for (const pg of pages) {
+              items.push(...(pg.items ?? []));
+            }
+            return items;
+          }),
+        );
+      }),
     );
   }
 
