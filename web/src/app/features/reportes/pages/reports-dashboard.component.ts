@@ -49,9 +49,11 @@ export class ReportsDashboardComponent implements OnInit {
     const t = this.total();
     const by = this.byAuthor();
     const totalPages = by.reduce((acc, x) => acc + (x.totalPages ?? 0), 0);
+    const totalCopies = by.reduce((acc, x) => acc + (x.copyCount ?? 0), 0);
     return [
       { label: 'Autores', value: t?.totalAuthors ?? '—' },
       { label: 'Libros', value: t?.totalBooks ?? '—' },
+      { label: 'Ejemplares', value: this.fmtInt(totalCopies) },
       { label: 'Páginas (total)', value: totalPages ? this.fmtInt(totalPages) : '—' },
       { label: 'Prom. pág/lib', value: this.fmtNum(t?.averagePagesPerBook ?? t?.avgPages) },
       { label: 'Autores sin libros', value: t?.authorsWithoutBooks?.length ?? '—' },
@@ -62,7 +64,10 @@ export class ReportsDashboardComponent implements OnInit {
     const t = this.total();
     const fromTotal = (t?.booksCountByAuthor ?? []).map((x) => ({ label: x.authorName, value: x.bookCount }));
     const fromSummary = this.byAuthor().map((x) => ({ label: x.authorName, value: x.bookCount }));
-    const src = fromTotal.length ? fromTotal : fromSummary;
+    const src = (fromTotal.length ? fromTotal : fromSummary).filter((x) => {
+      const n = (x.label ?? '').trim();
+      return n !== '' && n !== '—';
+    });
     return [...src].sort((a, b) => b.value - a.value).slice(0, 8);
   });
 
@@ -166,7 +171,12 @@ export class ReportsDashboardComponent implements OnInit {
     req.subscribe({
       next: (r) => {
         this.total.set(r.total);
-        this.byAuthor.set((r.byAuthor ?? []).filter((x) => (x.authorName ?? '').trim() !== ''));
+        this.byAuthor.set(
+          (r.byAuthor ?? []).filter((x) => {
+            const n = (x.authorName ?? '').trim();
+            return n !== '' && n !== '—';
+          }),
+        );
         this.loanActive.set(r.loanActive.totalRecords ?? 0);
         this.loanReturned.set(r.loanReturned.totalRecords ?? 0);
         this.booksAll.set(r.booksAll ?? []);

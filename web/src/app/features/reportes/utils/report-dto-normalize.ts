@@ -84,7 +84,8 @@ function normalizeBooksCountByAuthor(raw: unknown): { authorName: string; bookCo
       const bookCount = optNum(r, 'bookCount', 'BookCount', 'booksCount', 'BooksCount', 'count', 'Count', 'value', 'Value') ?? 0;
       return { authorName, bookCount };
     })
-    .filter((x) => x.authorName !== '—' || x.bookCount !== 0);
+    // No contemos filas “vacías” (evita inflar totales por registros incompletos).
+    .filter((x) => x.authorName !== '—');
 }
 
 function normalizeAuthorsWithoutBooks(
@@ -108,8 +109,21 @@ export function normalizeTotalSummaryReportDto(raw: unknown): TotalSummaryReport
   const authorsWithoutBooks = normalizeAuthorsWithoutBooks(r['authorsWithoutBooks'] ?? r['AuthorsWithoutBooks']);
   const averagePagesPerBook = optNum(r, 'averagePagesPerBook', 'AveragePagesPerBook');
 
-  const totalAuthors = booksCountByAuthor.length + authorsWithoutBooks.length;
-  const totalBooks = booksCountByAuthor.reduce((acc, x) => acc + (x.bookCount ?? 0), 0);
+  // Preferir totales del backend si existen.
+  const backendTotalAuthors =
+    optNum(r, 'totalAuthors', 'TotalAuthors', 'authorsCount', 'AuthorsCount', 'totalAuthorCount', 'TotalAuthorCount') ?? null;
+  const backendTotalBooks =
+    optNum(r, 'totalBooks', 'TotalBooks', 'booksCount', 'BooksCount', 'totalBookCount', 'TotalBookCount') ?? null;
+
+  // Fallback: deduplicar por nombre para evitar inflar totales.
+  const namesWithBooks = new Set(booksCountByAuthor.map((x) => x.authorName).filter(Boolean));
+  const namesWithoutBooks = new Set(
+    (authorsWithoutBooks ?? [])
+      .map((a) => [a.name, a.lastName].filter(Boolean).join(' ').trim())
+      .filter((n) => n !== ''),
+  );
+  const totalAuthors = backendTotalAuthors ?? new Set([...namesWithBooks, ...namesWithoutBooks]).size;
+  const totalBooks = backendTotalBooks ?? booksCountByAuthor.reduce((acc, x) => acc + (x.bookCount ?? 0), 0);
 
   return {
     topAuthorsByPages,
