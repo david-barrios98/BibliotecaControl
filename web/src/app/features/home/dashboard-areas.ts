@@ -72,4 +72,12 @@ export const DASHBOARD_AREAS: DashboardArea[] = [
       { label: 'Resumen global', hint: 'GET Report/Total-Summary — métricas, promedios, top autores' },
     ],
   },
+  {
+    slug: 'usuarios',
+    route: '/usuarios',
+    badge: 'U',
+    title: 'Gestión de usuarios',
+    summary: 'Administración de usuarios del sistema (solo administradores).',
+    options: [{ label: 'Acceso restringido', hint: "Visible y accesible solo con Role='Admin'." }],
+  },
 ];

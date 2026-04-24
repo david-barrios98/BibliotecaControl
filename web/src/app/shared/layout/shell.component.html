@@ -15,6 +15,9 @@
       <a routerLink="/personas" routerLinkActive="shell__link--active" class="shell__link">Personas</a>
       <a routerLink="/prestamos" routerLinkActive="shell__link--active" class="shell__link">Préstamos</a>
       <a routerLink="/reportes" routerLinkActive="shell__link--active" class="shell__link">Reportes</a>
+      @if (isAdmin()) {
+        <a routerLink="/usuarios" routerLinkActive="shell__link--active" class="shell__link">Usuarios</a>
+      }
       @if (isLoggedIn()) {
         <button type="button" class="shell__link shell__link--btn" (click)="logout()">Cerrar sesión</button>
       } @else {

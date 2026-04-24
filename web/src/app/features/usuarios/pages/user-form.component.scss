@@ -1,0 +1,103 @@
+.uf__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.45rem;
+  letter-spacing: -0.03em;
+}
+
+.uf__intro {
+  margin: 0 0 1rem;
+  color: var(--bc-color-muted);
+  font-size: 0.9rem;
+  max-width: 48rem;
+}
+
+.uf__form {
+  max-width: 42rem;
+}
+
+.uf__grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .uf__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .uf__field--full {
+    grid-column: 1 / -1;
+  }
+}
+
+.uf__field span {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  color: var(--bc-color-text);
+}
+
+.uf__req {
+  color: var(--bc-color-danger);
+  font-weight: 800;
+}
+
+.uf__field input,
+.uf__field select {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border-radius: 12px;
+  border: 1px solid var(--bc-color-border);
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: var(--bc-color-surface);
+}
+
+.uf__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.uf__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.uf__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.uf__btn--primary {
+  background: var(--bc-color-accent);
+  color: #fff;
+}
+
+.uf__btn--primary:hover:not(:disabled) {
+  background: var(--bc-color-accent-hover);
+}
+
+.uf__btn--ghost {
+  background: var(--bc-color-surface);
+  border-color: var(--bc-color-border);
+  color: var(--bc-color-text);
+}
+
+.uf__btn--ghost:hover:not(:disabled) {
+  border-color: var(--bc-color-accent);
+  color: var(--bc-color-accent);
+}
+

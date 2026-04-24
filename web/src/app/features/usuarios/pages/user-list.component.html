@@ -1,0 +1,108 @@
+<section class="ul" aria-labelledby="ul-title">
+  <app-back-link [link]="['/']" label="Inicio" />
+  <header class="ul__header">
+    <div>
+      <h1 id="ul-title" class="ul__title">Usuarios</h1>
+      <p class="ul__intro">Administración de usuarios (solo Admin). Búsqueda por username o email.</p>
+    </div>
+    <a routerLink="/usuarios/nuevo" class="ul__btn ul__btn--primary">Nuevo usuario</a>
+  </header>
+
+  <form class="ul__filters" (submit)="onSearchSubmit($event)" role="search" aria-label="Buscar usuarios">
+    <label class="ul__search">
+      <span class="ul__search-label">Buscar</span>
+      <input
+        class="ul__search-input"
+        type="search"
+        placeholder="Username o email…"
+        [value]="search()"
+        (input)="onSearchInput($event)"
+      />
+    </label>
+    <div class="ul__filters-actions">
+      <button type="submit" class="ul__btn ul__btn--ghost">Aplicar</button>
+      <button type="button" class="ul__btn ul__btn--ghost" (click)="clearSearch()" [disabled]="!search().trim()">
+        Limpiar
+      </button>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <app-loading-block label="Cargando usuarios…" />
+  } @else {
+    @if (listLoadFailed()) {
+      <p class="ul__intro">No se pudo cargar el listado.</p>
+      <button type="button" class="ul__btn ul__btn--primary" (click)="loadPage()">Reintentar</button>
+    } @else if (isEmpty()) {
+      <app-empty-state
+        title="Sin usuarios"
+        hint="No hay registros o ninguno coincide con la búsqueda."
+        actionLabel="Crear usuario"
+        [actionLink]="['/usuarios', 'nuevo']"
+      />
+    } @else {
+      <div class="ul__table-wrap">
+        <table class="ul__table">
+          <thead>
+            <tr>
+              <th scope="col">Id</th>
+              <th scope="col">Usuario</th>
+              <th scope="col">Rol</th>
+              <th scope="col">Estado</th>
+              <th scope="col" class="ul__col-actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of users(); track u.id) {
+              <tr [class.ul__row--muted]="u.isActive === false">
+                <td><span class="ul__pill">#{{ u.id }}</span></td>
+                <td>{{ userDisplay(u) }}</td>
+                <td><span class="ul__role">{{ userRole(u) }}</span></td>
+                <td>{{ statusLabel(u) }}</td>
+                <td class="ul__col-actions">
+                  <a [routerLink]="['/usuarios', u.id, 'editar']" class="ul__btn ul__btn--ghost">Editar</a>
+                  <button
+                    type="button"
+                    class="ul__btn ul__btn--danger"
+                    (click)="deactivate(u)"
+                    [disabled]="u.isActive === false"
+                  >
+                    Desactivar
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="ul__pager" aria-label="Paginación">
+        <div class="ul__pager-size">
+          <label for="ul-page-size">Por página</label>
+          <select id="ul-page-size" class="ul__select" (change)="onPageSizeChange($event)" [value]="pageSize()">
+            @for (s of pageSizeOptions; track s) {
+              <option [value]="s">{{ s }}</option>
+            }
+          </select>
+        </div>
+        <div class="ul__pager-nav">
+          <button type="button" class="ul__btn ul__btn--ghost" (click)="prevPage()" [disabled]="pageNumber() <= 1">
+            Anterior
+          </button>
+          <span class="ul__pager-info">
+            Página {{ pageNumber() }} @if (totalPages() > 0) { de {{ totalPages() }} } · {{ totalRecords() }} registro(s)
+          </span>
+          <button
+            type="button"
+            class="ul__btn ul__btn--ghost"
+            (click)="nextPage()"
+            [disabled]="totalPages() === 0 || pageNumber() >= totalPages()"
+          >
+            Siguiente
+          </button>
+        </div>
+      </footer>
+    }
+  }
+</section>
+

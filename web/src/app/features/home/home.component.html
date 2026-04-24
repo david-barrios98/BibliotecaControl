@@ -9,7 +9,7 @@
   </header>
 
   <div class="dash__grid" role="list">
-    @for (area of areas; track area.slug) {
+    @for (area of areas(); track area.slug) {
       <article class="area-card" role="listitem">
         <a [routerLink]="area.route" class="area-card__surface">
           <span class="area-card__badge" aria-hidden="true">{{ area.badge }}</span>
