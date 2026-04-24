@@ -53,7 +53,7 @@ export class ReportsDashboardComponent implements OnInit {
       { label: 'Autores', value: t?.totalAuthors ?? '—' },
       { label: 'Libros', value: t?.totalBooks ?? '—' },
       { label: 'Páginas (total)', value: totalPages ? this.fmtInt(totalPages) : '—' },
-      { label: 'Prom. páginas/libro', value: this.fmtNum(t?.averagePagesPerBook ?? t?.avgPages) },
+      { label: 'Prom. pág/lib', value: this.fmtNum(t?.averagePagesPerBook ?? t?.avgPages) },
       { label: 'Autores sin libros', value: t?.authorsWithoutBooks?.length ?? '—' },
     ] as const;
   });
