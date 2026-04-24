@@ -20,41 +20,117 @@
         <span class="ln__step ln__step--active">Libro y fechas</span>
       </div>
 
-      <div class="ln__panel">
-        <h2 class="ln__panel-title">Persona</h2>
-        <div class="ln__field ln__field--full">
-          <app-combobox-single
-            formControlName="personId"
-            controlId="loan-person-combo"
-            label="Persona que retira"
-            [requiredMark]="true"
-            placeholder="Escribí para buscar o elegí de la lista…"
-            [items]="persons()"
-            [labelFn]="labelPersonCombo"
-            [filterFn]="personFilter"
-          />
-        </div>
-        <p class="ln__hint">
-          Si no está en el listado,
-          <a routerLink="/personas/nuevo" class="ln__inline-link">registrá la persona</a>
-          y volvé a esta pantalla.
-        </p>
+      <div class="ln__layout">
+        <section class="ln__panel" aria-label="Persona">
+          <h2 class="ln__panel-title">Persona</h2>
+          <div class="ln__field ln__field--full">
+            <app-combobox-single
+              formControlName="personId"
+              controlId="loan-person-combo"
+              label="Persona que retira"
+              [requiredMark]="true"
+              placeholder="Escribí para buscar o elegí de la lista…"
+              [items]="persons()"
+              [labelFn]="labelPersonCombo"
+              [filterFn]="personFilter"
+            />
+          </div>
+
+          @if (personCard(); as p) {
+            <div class="ln__person-card" aria-label="Resumen persona">
+              <div class="ln__person-name">{{ personLabel(p) }}</div>
+              <div class="ln__person-meta">
+                <span>{{ p.nationalId || '—' }}</span>
+                <span class="ln__dot">·</span>
+                <span>{{ p.phone || '—' }}</span>
+              </div>
+              <div class="ln__person-meta">{{ p.address || '—' }}</div>
+            </div>
+          } @else {
+            <p class="ln__hint">
+              Si no está en el listado,
+              <a routerLink="/personas/nuevo" class="ln__inline-link">registrá la persona</a>
+              y volvé a esta pantalla.
+            </p>
+          }
+        </section>
+
+        <section class="ln__panel" aria-label="Libros">
+          <h2 class="ln__panel-title">Libros</h2>
+          <div class="ln__field ln__field--full">
+            <app-combobox-single
+              [formControl]="bookPick"
+              controlId="loan-book-combo"
+              label="Agregar libro"
+              placeholder="Escribí un título y seleccioná…"
+              [items]="books()"
+              [labelFn]="labelBookCombo"
+              [filterFn]="bookFilter"
+            />
+          </div>
+
+          <div class="ln__add-actions">
+            <button
+              type="button"
+              class="ln__btn ln__btn--primary"
+              (click)="addSelectedBook()"
+              [disabled]="bookLoading() || bookPick.value == null"
+            >
+              {{ bookLoading() ? 'Agregando…' : 'Agregar a la lista' }}
+            </button>
+          </div>
+
+          <p class="ln__muted">Los libros agregados se verán abajo, con ejemplar y acciones.</p>
+        </section>
       </div>
 
-      <div class="ln__panel">
-        <h2 class="ln__panel-title">Libro y plazo</h2>
-        <div class="ln__field ln__field--full">
-          <app-combobox-single
-            formControlName="bookId"
-            controlId="loan-book-combo"
-            label="Libro"
-            [requiredMark]="true"
-            placeholder="Título del libro…"
-            [items]="books()"
-            [labelFn]="labelBookCombo"
-            [filterFn]="bookFilter"
-          />
-        </div>
+      <section class="ln__panel ln__panel--full" aria-label="Ejemplares y plazo">
+        <h2 class="ln__panel-title">Ejemplares seleccionados y plazo</h2>
+        <p class="ln__hint">
+          Se registrará <strong>un préstamo por cada libro</strong>, con un solo plazo general.
+          Regla: una persona solo puede tener un préstamo activo por libro.
+        </p>
+
+        @if (selected().length === 0) {
+          <p class="ln__muted">Todavía no agregaste libros. Usá la card de “Libros” para sumarlos.</p>
+        } @else {
+          <ul class="ln__sel-list">
+            @for (b of selected(); track b.id) {
+              <li class="ln__sel-item">
+                <div class="ln__sel-left">
+                  <div class="ln__sel-cover" [class.ln__sel-cover--empty]="!(b.coverUrl ?? '').trim()">
+                    <app-cover-thumb [url]="b.coverUrl" />
+                  </div>
+                  <div class="ln__sel-meta">
+                    <div class="ln__sel-title">{{ b.title }}</div>
+                    <div class="ln__sel-sub">
+                        Ejemplar: <code class="ln__code-inline">{{ firstCopyLabel(b) }}</code>
+                        <span class="ln__dot">·</span>
+                        Autor: {{ b.authorName || ('Autor #' + b.authorId) }}
+                        <span class="ln__dot">·</span>
+                        {{ b.numberOfPages }} pág.
+                        @if (b.gender) {
+                          <span class="ln__dot">·</span>
+                          {{ b.gender }}
+                        }
+                        <span class="ln__dot">·</span>
+                        Pub: {{ formatDate(b.publishedDate, 'short') }}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="ln__icon-btn ln__icon-btn--danger"
+                  (click)="removeSelectedBook(b.id)"
+                  aria-label="Quitar de la lista"
+                  title="Quitar"
+                >
+                  <span class="ln__trash" aria-hidden="true"></span>
+                </button>
+              </li>
+            }
+          </ul>
+        }
 
         <div class="ln__grid ln__grid--dates">
           <label class="ln__field">
@@ -69,7 +145,7 @@
         @if (form.errors?.['dueBeforeLoan'] && (form.touched || form.dirty)) {
           <p class="ln__field-error" role="alert">La devolución esperada no puede ser anterior al inicio.</p>
         }
-      </div>
+      </section>
 
       <div class="ln__actions">
         <a routerLink="/prestamos" class="ln__btn ln__btn--ghost">Cancelar</a>

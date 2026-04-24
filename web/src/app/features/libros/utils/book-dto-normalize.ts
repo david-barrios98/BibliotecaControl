@@ -53,6 +53,8 @@ export function normalizeBookResponseDto(raw: unknown): BookResponseDto {
     authorId: num(r, 'authorId', 'AuthorId', 0),
     authorName: optStr(r, 'authorName', 'AuthorName'),
     coverUrl: canonicalCoverUrl(optStr(r, 'coverUrl', 'CoverUrl')),
+    copyNumber: optNum(r, 'copyNumber', 'CopyNumber'),
+    copyCode: optStr(r, 'copyCode', 'CopyCode'),
   };
 }
 

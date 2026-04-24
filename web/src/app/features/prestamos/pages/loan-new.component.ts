@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -7,17 +7,21 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, finalize, forkJoin, from, of, switchMap } from 'rxjs';
+import { concatMap, toArray } from 'rxjs/operators';
 import { PersonApiService } from '../../personas/services/person-api.service';
 import type { PersonResponseDto } from '../../personas/models/person.dto';
 import { BookApiService } from '../../libros/services/book-api.service';
+import type { BookDetailResponseDto } from '../../libros/models/book.dto';
 import { LoanApiService } from '../services/loan-api.service';
 import { parseHttpError } from '@core/http/api-response-helpers';
-import { dateInputToIsoUtcNoon } from '@core/utils/date-input';
+import { dateInputToIsoUtcNoon, formatIsoDateDisplay } from '@core/utils/date-input';
 import { LoadingBlockComponent } from '@shared/ui/loading-block.component';
 import { AlertService } from '@core/notifications/alert.service';
 import { BackLinkComponent } from '@shared/ui/back-link.component';
 import { ComboboxSingleComponent, type ComboboxItem } from '@shared/ui/combobox-single.component';
+import { CoverThumbComponent } from '@shared/ui/cover-thumb.component';
 
 function localDateInputValue(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -35,7 +39,14 @@ function dueDateAfterLoanValidator(group: AbstractControl): ValidationErrors | n
 @Component({
   selector: 'app-loan-new',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, LoadingBlockComponent, BackLinkComponent, ComboboxSingleComponent],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    LoadingBlockComponent,
+    BackLinkComponent,
+    ComboboxSingleComponent,
+    CoverThumbComponent,
+  ],
   templateUrl: './loan-new.component.html',
   styleUrl: './loan-new.component.scss',
 })
@@ -46,27 +57,44 @@ export class LoanNewComponent implements OnInit {
   private readonly loanApi = inject(LoanApiService);
   private readonly router = inject(Router);
   private readonly alerts = inject(AlertService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly catalogLoading = signal(false);
   protected readonly saving = signal(false);
   protected readonly catalogError = signal(false);
+  protected readonly bookLoading = signal(false);
 
   protected readonly persons = signal<PersonResponseDto[]>([]);
   protected readonly books = signal<{ id: number; title: string }[]>([]);
+  protected readonly selected = signal<BookDetailResponseDto[]>([]);
+  protected readonly personCard = signal<PersonResponseDto | null>(null);
 
   readonly form = this.fb.group(
     {
       personId: [null as number | null, Validators.required],
-      bookId: [null as number | null, Validators.required],
       loanDate: ['', Validators.required],
       dueDate: ['', Validators.required],
     },
     { validators: [dueDateAfterLoanValidator] },
   );
 
+  /** Control auxiliar: libro a agregar al “carrito” del préstamo. */
+  protected readonly bookPick = this.fb.control<number | null>(null, Validators.required);
+
   ngOnInit(): void {
     this.setDefaultDates();
     this.loadCatalog();
+
+    this.form.controls.personId.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((id) => {
+        if (id == null || id < 1) {
+          this.personCard.set(null);
+          return;
+        }
+        const p = this.persons().find((x) => x.id === id) ?? null;
+        this.personCard.set(p);
+      });
   }
 
   private setDefaultDates(): void {
@@ -134,38 +162,95 @@ export class LoanNewComponent implements OnInit {
   protected submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      void this.alerts.info('Completá persona, libro y fechas válidas.', 'Revisá el formulario');
+      void this.alerts.info('Completá persona y fechas válidas.', 'Revisá el formulario');
       return;
     }
     const v = this.form.getRawValue();
     const personId = v.personId;
-    const bookId = v.bookId;
     const loanDate = v.loanDate?.trim();
     const dueDate = v.dueDate?.trim();
-    if (personId == null || bookId == null || !loanDate || !dueDate) return;
+    const books = this.selected();
+    if (personId == null || !loanDate || !dueDate) return;
+    if (books.length === 0) {
+      void this.alerts.info('Agregá al menos un libro antes de registrar.', 'Faltan libros');
+      return;
+    }
     if (this.form.errors?.['dueBeforeLoan']) {
       void this.alerts.info('La fecha de devolución esperada debe ser posterior o igual al inicio del préstamo.', 'Fechas inválidas');
       return;
     }
 
     this.saving.set(true);
-    this.loanApi
-      .create({
-        personId,
-        bookId,
-        loanDate: dateInputToIsoUtcNoon(loanDate),
-        dueDate: dateInputToIsoUtcNoon(dueDate),
-      })
+    const payloadBase = {
+      personId,
+      loanDate: dateInputToIsoUtcNoon(loanDate),
+      dueDate: dateInputToIsoUtcNoon(dueDate),
+    };
+
+    from(books)
+      .pipe(
+        concatMap((b) =>
+          this.loanApi.create({
+            ...payloadBase,
+            bookId: b.id,
+          }),
+        ),
+        toArray(),
+        finalize(() => this.saving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
-        next: async () => {
-          this.saving.set(false);
-          await this.alerts.success('El préstamo se registró correctamente.');
+        next: async (created) => {
+          await this.alerts.success(`Se registraron ${created.length} préstamo(s).`);
           void this.router.navigate(['/prestamos']);
         },
         error: async (err: unknown) => {
-          this.saving.set(false);
-          await this.alerts.error(parseHttpError(err), 'No se pudo registrar el préstamo');
+          await this.alerts.error(parseHttpError(err), 'No se pudieron registrar todos los préstamos');
         },
       });
   }
+
+  protected addSelectedBook(): void {
+    const bookId = this.bookPick.value;
+    if (bookId == null || bookId < 1) return;
+    if (this.selected().some((s) => s.id === bookId)) {
+      void this.alerts.info('Ese libro ya está agregado. Solo se permite 1 por libro.', 'Duplicado');
+      this.bookPick.setValue(null);
+      return;
+    }
+
+    this.bookLoading.set(true);
+    this.bookApi
+      .getById(bookId)
+      .pipe(
+        finalize(() => this.bookLoading.set(false)),
+        catchError((err: unknown) => {
+          void this.alerts.error(parseHttpError(err), 'No se pudo cargar el libro');
+          return of(null);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((b) => {
+        if (!b) return;
+        const copies = [...(b.copies ?? [])].sort((a, c) => a.copyNumber - c.copyNumber);
+        this.selected.update((arr) => [...arr, { ...b, copies }]);
+        this.bookPick.setValue(null);
+        this.bookPick.markAsPristine();
+        this.bookPick.markAsUntouched();
+      });
+  }
+
+  protected removeSelectedBook(bookId: number): void {
+    this.selected.update((arr) => arr.filter((b) => b.id !== bookId));
+  }
+
+  protected firstCopyLabel(b: BookDetailResponseDto): string {
+    const c = (b.copies ?? [])[0];
+    if (!c) return '—';
+    const code = (c.copyCode ?? '').trim();
+    if (code) return code;
+    return c.copyNumber ? `#${c.copyNumber}` : '—';
+  }
+
+  protected readonly formatDate = formatIsoDateDisplay;
 }

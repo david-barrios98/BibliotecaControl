@@ -103,6 +103,7 @@
         <table class="prest__table">
           <thead>
             <tr>
+              <th scope="col" class="prest__col-id">N.º</th>
               <th scope="col">Estado</th>
               <th scope="col">Persona</th>
               <th scope="col">Libro</th>
@@ -115,6 +116,7 @@
           <tbody>
             @for (row of loans(); track row.id) {
               <tr [class.prest__row--muted]="isLoanReturned(row)">
+                <td class="prest__col-id"><span class="prest__id">#{{ row.id }}</span></td>
                 <td>
                   @if (isLoanReturned(row)) {
                     <span class="prest__badge prest__badge--done">Devuelto</span>

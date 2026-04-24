@@ -9,6 +9,10 @@ export interface BookResponseDto {
   authorId: number;
   authorName?: string | null;
   coverUrl?: string | null;
+  /** Primer ejemplar activo del libro (puede venir null si no hay copias activas). */
+  copyNumber?: number | null;
+  /** Código del primer ejemplar activo (puede venir null si no hay copias activas). */
+  copyCode?: string | null;
 }
 
 /** Detalle (`GET Book/{id}`) con ejemplares activos. */
