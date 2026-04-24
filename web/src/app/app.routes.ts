@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { LIBROS_HUB, REPORTES_HUB } from './features/module-hub/module-hubs.data';
+import { authRequiredChildGuard } from './core/auth/auth-required.guard';
 
 export const routes: Routes = [
   {
@@ -9,6 +10,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./shared/layout/shell.component').then((m) => m.ShellComponent),
+    canActivateChild: [authRequiredChildGuard],
     children: [
       {
         path: '',
