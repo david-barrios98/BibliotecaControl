@@ -1,0 +1,97 @@
+<section class="rep" aria-labelledby="rep-title">
+  <app-back-link [link]="['/']" label="Inicio" />
+
+  <header class="rep__header">
+    <div>
+      <h1 id="rep-title" class="rep__title">Reportes</h1>
+      <p class="rep__intro">Resumen ejecutivo y visualizaciones para lectura rápida.</p>
+    </div>
+    <button type="button" class="rep__btn rep__btn--ghost" (click)="reload()" [disabled]="loading()">Actualizar</button>
+  </header>
+
+  @if (loading()) {
+    <app-loading-block label="Cargando reportes…" />
+  } @else if (loadFailed()) {
+    <p class="rep__intro">No se pudieron cargar los reportes.</p>
+    <button type="button" class="rep__btn rep__btn--primary" (click)="reload()">Reintentar</button>
+  } @else {
+    <div class="rep__kpis" aria-label="Indicadores">
+      @for (k of kpis(); track k.label) {
+        <div class="rep__kpi">
+          <div class="rep__kpi-value">{{ k.value }}</div>
+          <div class="rep__kpi-label">{{ k.label }}</div>
+        </div>
+      }
+    </div>
+
+    <div class="rep__grid">
+      <section class="rep__card" aria-label="Libros por autor">
+        <h2 class="rep__card-title">Libros por autor (Top)</h2>
+        <p class="rep__hint">Fuente: <code>GET Report/Total-Summary</code> (fallback: <code>Authors-Books-Summary</code>)</p>
+        <app-mini-bar-chart [data]="booksByAuthorBars()" ariaLabel="Top autores por cantidad de libros"></app-mini-bar-chart>
+      </section>
+
+      <section class="rep__card" aria-label="Top autores del resumen global">
+        <h2 class="rep__card-title">Top autores por páginas</h2>
+        <p class="rep__hint">Fuente: <code>GET Report/Total-Summary</code></p>
+        <app-mini-bar-chart [data]="pagesByAuthorBars()" ariaLabel="Top autores por páginas"></app-mini-bar-chart>
+      </section>
+
+      <section class="rep__card" aria-label="Préstamos activos vs devueltos">
+        <h2 class="rep__card-title">Préstamos (Activos vs Devueltos)</h2>
+        <p class="rep__hint">Fuente: <code>GET Loan/List</code> (status)</p>
+        <app-mini-donut [slices]="loansDonut()" ariaLabel="Distribución de préstamos por estado"></app-mini-donut>
+      </section>
+
+      <section class="rep__card" aria-label="Libros con ejemplar activo">
+        <h2 class="rep__card-title">Libros (Ejemplares activos)</h2>
+        <p class="rep__hint">Fuente: <code>GET Book/List</code> (usa <code>copyCode</code> / <code>copyNumber</code>)</p>
+        <app-mini-donut [slices]="booksCopiesDonut()" ariaLabel="Libros con o sin ejemplar activo"></app-mini-donut>
+      </section>
+
+      <section class="rep__card" aria-label="Personas con email">
+        <h2 class="rep__card-title">Personas (Contactabilidad)</h2>
+        <p class="rep__hint">Fuente: <code>GET Person/List</code> (email)</p>
+        <app-mini-donut [slices]="personsEmailDonut()" ariaLabel="Personas con o sin email"></app-mini-donut>
+      </section>
+
+      @if (usersActiveDonut().length) {
+        <section class="rep__card" aria-label="Usuarios activos vs inactivos">
+          <h2 class="rep__card-title">Usuarios (Activos vs Inactivos)</h2>
+          <p class="rep__hint">Fuente: <code>GET User/List</code> (solo Admin)</p>
+          <app-mini-donut [slices]="usersActiveDonut()" ariaLabel="Usuarios activos vs inactivos"></app-mini-donut>
+        </section>
+      }
+
+      <section class="rep__card rep__card--wide" aria-label="Calidad del catálogo">
+        <h2 class="rep__card-title">Calidad del catálogo</h2>
+        <p class="rep__hint">Señales útiles para operación (si el backend las envía).</p>
+        <div class="rep__checks">
+          <div class="rep__check">
+            <span class="rep__check-label">Autores sin libros</span>
+            <span class="rep__check-value">{{ total()?.authorsWithoutBooks?.length ?? '—' }}</span>
+          </div>
+          <div class="rep__check">
+            <span class="rep__check-label">Promedio páginas/libro</span>
+            <span class="rep__check-value">{{ fmtNum(total()?.averagePagesPerBook) }}</span>
+          </div>
+          <div class="rep__check">
+            <span class="rep__check-label">Top (páginas) disponible</span>
+            <span class="rep__check-value">{{ pagesByAuthorBars().length ? 'Sí' : '—' }}</span>
+          </div>
+        </div>
+
+        @if (authorsWithoutBooksList().length) {
+          <div class="rep__divider" role="presentation"></div>
+          <h3 class="rep__sub">Autores sin libros</h3>
+          <div class="rep__chips">
+            @for (n of authorsWithoutBooksList(); track n) {
+              <span class="rep__chip">{{ n }}</span>
+            }
+          </div>
+        }
+      </section>
+    </div>
+  }
+</section>
+

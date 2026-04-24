@@ -37,8 +37,7 @@ export const routes: Routes = [
       },
       {
         path: 'reportes',
-        loadComponent: () => import('./features/module-hub/module-hub.component').then((m) => m.ModuleHubComponent),
-        data: { hub: REPORTES_HUB },
+        loadChildren: () => import('./features/reportes/reportes.routes').then((m) => m.REPORTES_ROUTES),
       },
     ],
   },
