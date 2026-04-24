@@ -16,6 +16,14 @@ function optStr(r: Record<string, unknown>, camel: string, pascal: string): stri
   return String(v);
 }
 
+function optStrMany(r: Record<string, unknown>, ...keys: string[]): string | null {
+  for (const k of keys) {
+    const v = r[k];
+    if (v != null && v !== '') return String(v);
+  }
+  return null;
+}
+
 function num(r: Record<string, unknown>, camel: string, pascal: string, fallback = 0): number {
   const v = r[camel] ?? r[pascal];
   if (v == null || v === '') return fallback;
@@ -41,11 +49,27 @@ export function normalizeLoanResponseDto(raw: unknown): LoanResponseDto {
     bookId: num(r, 'bookId', 'BookId', 0),
     bookTitle: optStr(r, 'bookTitle', 'BookTitle'),
     bookCopyId: optNum(r, 'bookCopyId', 'BookCopyId'),
-    copyNumber: optNum(r, 'copyNumber', 'CopyNumber'),
-    copyCode: optStr(r, 'copyCode', 'CopyCode'),
+    copyNumber: optNum(r, 'copyNumber', 'CopyNumber') ?? optNum(r, 'bookCopyNumber', 'BookCopyNumber'),
+    copyCode:
+      optStrMany(r, 'copyCode', 'CopyCode', 'bookCopyCode', 'BookCopyCode', 'bookCopy', 'BookCopy') ??
+      optStrMany(r, 'bookCopyCodeValue', 'BookCopyCodeValue'),
     loanDate: str(r, 'loanDate', 'LoanDate'),
     dueDate: optStr(r, 'dueDate', 'DueDate'),
-    returnedAt: optStr(r, 'returnedAt', 'ReturnedAt'),
+    returnedAt: optStrMany(
+      r,
+      'returnedAt',
+      'ReturnedAt',
+      'returnedDate',
+      'ReturnedDate',
+      'returnDate',
+      'ReturnDate',
+      'returnAt',
+      'ReturnAt',
+      'returnedOn',
+      'ReturnedOn',
+      'returnOn',
+      'ReturnOn',
+    ),
     status: optStr(r, 'status', 'Status'),
   };
 }
